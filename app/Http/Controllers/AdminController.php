@@ -1,0 +1,64 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\Wish;
+use Illuminate\Http\Request;
+
+class AdminController extends Controller
+{
+
+    public function index()
+    {
+        $guestWishes = Wish::where('is_public', false)->latest()->get();
+        $myWishes = Wish::where('is_public', true)->latest()->get();
+
+        return view('admin.dashboard', compact('guestWishes', 'myWishes'));
+    }
+
+    public function store(Request $request)
+    {
+        $validatedData = $request->validate([
+            'title' => 'required',
+            'description' => 'nullable',
+            'image' => 'nullable',
+            'example_links' => 'nullable',
+        ]);
+        $validatedData['is_public'] = true;
+        $validatedData['receiver'] = auth()->user()->name;
+        Wish::create($validatedData);
+
+        return back()->with('success', 'Wunsch hinzugefügt!');
+    }
+
+    public function edit(Wish $wish)
+    {
+        return view('admin.edit', compact('wish'));
+    }
+
+    public function update(Request $request, Wish $wish) {
+        $validatedData = $request->validate([
+            'title' => 'required',
+            'description' => 'nullable',
+            'image' => 'nullable',
+            'receiver' => 'required',
+            'example_links' => 'nullable',
+        ]);
+
+        $wish->update($validatedData);
+
+        return redirect()->route('admin.index')->with('success', 'Wunsch erfolgreich geändert!');
+    }
+
+    public function togglePublic(Wish $wish)
+    {
+        $wish->update(['is_public' => !$wish->is_public]);
+        return back()->with('success', 'Status geändert!');
+    }
+
+    public function destroy(Wish $wish)
+    {
+        $wish->delete();
+        return back()->with('success','Wunsch dauerhaft gelöscht!');
+    }
+}
