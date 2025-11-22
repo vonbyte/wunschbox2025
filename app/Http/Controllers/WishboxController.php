@@ -10,7 +10,7 @@ class WishboxController extends Controller
 
     public function index()
     {
-        return view('wishlist');
+        return view('wishbox');
     }
 
     public function store(Request $request)

@@ -17,9 +17,8 @@ Route::get('/wishlist',
 Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/', [App\Http\Controllers\AdminController::class, 'index'])->name('index');
     Route::post('/wishes', [App\Http\Controllers\WishboxController::class, 'store'])->name('wishes.store');
-    Route::patch('/wishes/{wish}/toggle', [App\Http\Controllers\WishboxController::class, 'togglePublic'])->name('wishes.toggle');
-    Route::delete('/wishes/{wish}', [App\Http\Controllers\WishboxController::class, 'destroy'])->name('wishes.destroy');
+    Route::patch('/wishes/{wish}/toggle', [App\Http\Controllers\AdminController::class, 'togglePublic'])->name('wishes.toggle');
+    Route::delete('/wishes/{wish}', [App\Http\Controllers\AdminController::class, 'destroy'])->name('wishes.destroy');
 });
 
 require __DIR__.'/auth.php';
-
