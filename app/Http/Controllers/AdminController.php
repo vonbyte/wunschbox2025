@@ -4,10 +4,13 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\AdminStoreWishRequest;
 use App\Models\Wish;
+use App\Services\WishService;
 use Illuminate\Http\Request;
 
 class AdminController extends Controller
 {
+
+    public function __construct(private readonly WishService $wishService) {}
 
     public function index()
     {
@@ -21,12 +24,12 @@ class AdminController extends Controller
     {
         $validatedData = $request->validated();
 
-        $validatedData['example_links'] = explode('\n',
-            $validatedData['example_links']);
-        $validatedData['is_public'] = true;
-        $validatedData['receiver'] = auth()->user()->name;
+        $wishData = $this->wishService->processWishData($validatedData, $request);
 
-        Wish::create($validatedData);
+        $wishData['is_public'] = true;
+        $wishData['receiver'] = auth()->user()->name;
+
+        Wish::create($wishData);
 
         return back()->with('success', 'Wunsch hinzugefügt!');
     }
@@ -41,10 +44,9 @@ class AdminController extends Controller
     {
         $validatedData = $request->validated();
 
-        $validatedData['example_links'] = explode("\r\n",
-            $validatedData['example_links']);
+        $wishData = $this->wishService->processWishData($validatedData, $request);
 
-        $wish->update($validatedData);
+        $wish->update($wishData);
 
         return redirect()
             ->route('admin.index')

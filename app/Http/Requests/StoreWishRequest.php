@@ -22,9 +22,9 @@ class StoreWishRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'title' => 'required',
-            'description' => 'nullable',
-            'image' => 'nullable',
+            'title' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:10000',
             'example_links' => 'nullable',
         ];
     }

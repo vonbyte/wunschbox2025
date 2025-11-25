@@ -4,9 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreWishRequest;
 use App\Models\Wish;
+use App\Services\WishService;
 
 class WishboxController extends Controller
 {
+
+    public function __construct(private readonly WishService $wishService) {}
 
     public function index()
     {
@@ -16,12 +19,11 @@ class WishboxController extends Controller
     public function store(StoreWishRequest $request)
     {
         $validatedData = $request->validated();
+        $wishData = $this->wishService->processWishData($validatedData);
 
-        $validatedData['example_links'] = explode("\r\n",
-            $validatedData['example_links']);
-        $validatedData['is_public'] = false;
+        $wishData['is_public'] = false;
 
-        Wish::create($validatedData);
+        Wish::create($wishData);
 
         return redirect()
             ->route('wishbox')
