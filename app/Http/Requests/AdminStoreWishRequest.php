@@ -9,6 +9,6 @@ class AdminStoreWishRequest extends StoreWishRequest
      */
     public function authorize(): bool
     {
-        return auth()->user()->is_admin();
+        return auth()->user()->isAdmin();
     }
 }

@@ -33,7 +33,7 @@ class AdminController extends Controller
 
     public function edit(Wish $wish)
     {
-        $wish->example_links = implode('\n',$wish->example_links);
+
         return view('admin.edit', compact('wish'));
     }
 
@@ -41,7 +41,7 @@ class AdminController extends Controller
     {
         $validatedData = $request->validated();
 
-        $validatedData['example_links'] = explode('\n',
+        $validatedData['example_links'] = explode("\r\n",
             $validatedData['example_links']);
 
         $wish->update($validatedData);

@@ -17,7 +17,7 @@ class WishboxController extends Controller
     {
         $validatedData = $request->validated();
 
-        $validatedData['example_links'] = explode('\n',
+        $validatedData['example_links'] = explode("\r\n",
             $validatedData['example_links']);
         $validatedData['is_public'] = false;
 
