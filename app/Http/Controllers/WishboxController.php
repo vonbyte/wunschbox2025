@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreWishRequest;
 use App\Models\Wish;
-use Illuminate\Http\Request;
 
 class WishboxController extends Controller
 {
@@ -13,17 +13,19 @@ class WishboxController extends Controller
         return view('wishbox');
     }
 
-    public function store(Request $request)
+    public function store(StoreWishRequest $request)
     {
-        $validatedData = $request->validate([
-            'title' => 'required|max:255',
-            'receiver' => 'required',
-            'description' => 'nullable',
-        ]);
+        $validatedData = $request->validated();
+
+        $validatedData['example_links'] = explode('\n',
+            $validatedData['example_links']);
+        $validatedData['is_public'] = false;
 
         Wish::create($validatedData);
 
-        return redirect()->route('home')->with('success', 'Wunsch erfolgreich übermittelt');
+        return redirect()
+            ->route('wishbox')
+            ->with('success', 'Wunsch erfolgreich übermittelt');
     }
 
 }

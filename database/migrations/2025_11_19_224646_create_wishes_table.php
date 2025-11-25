@@ -18,7 +18,7 @@ return new class extends Migration
             $table->string('image')->nullable();
             $table->string('receiver');
             $table->json('example_links')->nullable();
-            $table->boolean('is_pulic')->default(false);
+            $table->boolean('is_public')->default(false);
             $table->timestamps();
         });
     }

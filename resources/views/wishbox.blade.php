@@ -24,84 +24,10 @@
                 <p class="font-semibold">{{ session('success') }}</p>
             </div>
         @endif
-        <form method="POST" action="{{ route('wishbox.store') }}" class="space-y-6">
-            @csrf
-            <div>
-                <label for="title" class="block text-sm font-medium text-gray-700 mb-2">
-                    Was wünschst du dir? *
-                </label>
-                <input
-                    type="text"
-                    id="title"
-                    name="title"
-                    required
-                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-christmas-red focus:border-transparent transition"
-                    placeholder="z.B. Kuscheldecke, Buch, Kopfhörer...">
-                @error('title')
-                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                @enderror
-            </div>
-            <div>
-                <label for="receiver" class="block text-sm font-medium text-gray-700 mb-2">
-                    Dein Name *
-                </label>
-                <select
-                    id="receiver"
-                    name="receiver"
-                    required
-                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-christmas-red focus:border-transparent transition">
-                    <option value="sonia" selected="selected">Sonia</option>
-                    <option value="other">Andere</option>
-                </select>
-                @error('receiver')
-                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                @enderror
-            </div>
-
-            <div>
-                <label for="image" class="block text-sm font-medium text-gray-700 mb-2">
-                    Bild (optional)
-                </label>
-                <input
-                    type="file"
-                    id="image"
-                    name="image"
-                    required
-                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-christmas-red focus:border-transparent transition">
-                @error('title')
-                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                @enderror
-            </div>
-
-            <div>
-                <label for="description" class="block text-sm font-medium text-gray-700 mb-2">
-                    Beschreibung (optional)
-                </label>
-                <textarea
-                    id="description"
-                    name="description"
-                    rows="4"
-                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-christmas-red focus:border-transparent transition resize-none"
-                    placeholder="Erzähl mehr über deinen Wunsch..."></textarea>
-            </div>
-
-            <div>
-                <label for="example_links" class="block text-sm font-medium text-gray-700 mb-2">
-                    Links (optional)
-                </label>
-                <textarea
-                    id="example_links"
-                    name="example_links"
-                    rows="4"
-                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-christmas-red focus:border-transparent transition resize-none"
-                    placeholder="Gib ein paar Beispielseiten an..."></textarea>
-            </div>
-            <button
-                type="submit"
-                class="w-full bg-christmas-red hover:bg-red-700 text-white font-bold py-4 px-6 rounded-lg transition duration-200 transform hover:scale-105 shadow-lg">
-                🎁 Wunsch absenden
-            </button>
-        </form>
+        <x-wish-form
+            :action="route('wishbox.store')"
+            submit-text="🎁 Wunsch absenden"
+        />
         <div class="mt-8 text-center">
             <a href="{{ route('wishlist') }}" class="text-christmas-red hover:text-red-700 font-semibold">
                 📜 Zur Wunschliste →

@@ -15,4 +15,13 @@ class WishlistController
         return view('wishlist', compact('wishes'));
     }
 
+    public function show(Wish $wish) {
+
+        if (!$wish->is_public && (!auth()->check() || !auth()->user()->isAdmin())) {
+            abort(404, 'Dieser Wunsch ist nicht öffentlich.');
+        }
+
+        return view('wishlist.show', compact('wish'));
+    }
+
 }

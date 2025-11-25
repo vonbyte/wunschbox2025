@@ -37,25 +37,12 @@
         <h2 class="text-xl font-bold text-gray-800 mb-4 border-b-2 border-christmas-red pb-2">
             ➕ Meinen Wunsch hinzufügen
         </h2>
-        <form method="POST" action="{{ route('admin.wishes.store') }}" class="space-y-4">
-            @csrf
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <input
-                    type="text"
-                    name="title"
-                    placeholder="Titel *"
-                    required
-                    class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-christmas-red focus:border-transparent">
-                <button type="submit" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-6 rounded-lg transition">
-                    Hinzufügen
-                </button>
-            </div>
-            <textarea
-                name="description"
-                rows="2"
-                placeholder="Beschreibung (optional)"
-                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-christmas-red focus:border-transparent"></textarea>
-        </form>
+        <x-wish-form
+            :action="route('admin.wishes.store')"
+            :show-receiver="true"
+            submit-text="Hinzufügen"
+            class="max-w-2xl"
+        />
     </div>
 
     <!-- My Public Wishes -->
@@ -78,17 +65,27 @@
                     </thead>
                     <tbody class="divide-y divide-gray-200">
                     @foreach($myWishes as $wish)
-                        <tr class="hover:bg-gray-50">
+                        <tr class="hover:bg-gray-50 cursor-pointer" onclick="window.location='{{ route('wish.show', $wish) }}'">
+                            <td class="px-4 py-3">
+                                @if($wish->image)
+                                    <img src="{{ Storage::url($wish->image) }}" alt="{{ $wish->title }}" class="w-12 h-12 object-cover rounded">
+                                @else
+                                    <div class="w-12 h-12 bg-gray-200 rounded flex items-center justify-center text-gray-400 text-xs">
+                                        📦
+                                    </div>
+                                @endif
+                            </td>
                             <td class="px-4 py-3 font-semibold">{{ $wish->title }}</td>
-                            <td class="px-4 py-3 text-gray-600">{{ Str::limit($wish->description, 50) }}</td>
-                            <td class="px-4 py-3 text-right space-x-2">
+                            <td class="px-4 py-3">{{ $wish->receiver }}</td>
+                            <td class="px-4 py-3 text-gray-600">{{ Str::limit($wish->description, 40) }}</td>
+                            <td class="px-4 py-3 text-right space-x-2" onclick="event.stopPropagation()">
                                 <a href="{{ route('admin.wishes.edit', $wish) }}" class="text-blue-600 hover:text-blue-800 font-medium">
                                     Bearbeiten
                                 </a>
                                 <form method="POST" action="{{ route('admin.wishes.toggle', $wish) }}" class="inline">
                                     @csrf @method('PATCH')
-                                    <button type="submit" class="text-orange-600 hover:text-orange-800 font-medium">
-                                        Privat
+                                    <button type="submit" class="text-green-600 hover:text-green-800 font-medium">
+                                        → Öffentlich
                                     </button>
                                 </form>
                                 <form method="POST" action="{{ route('admin.wishes.destroy', $wish) }}" class="inline" onsubmit="return confirm('Wirklich löschen?')">
@@ -127,11 +124,20 @@
                     </thead>
                     <tbody class="divide-y divide-gray-200">
                     @foreach($guestWishes as $wish)
-                        <tr class="hover:bg-gray-50">
+                        <tr class="hover:bg-gray-50 cursor-pointer" onclick="window.location='{{ route('wish.show', $wish) }}'">
+                            <td class="px-4 py-3">
+                                @if($wish->image)
+                                    <img src="{{ Storage::url($wish->image) }}" alt="{{ $wish->title }}" class="w-12 h-12 object-cover rounded">
+                                @else
+                                    <div class="w-12 h-12 bg-gray-200 rounded flex items-center justify-center text-gray-400 text-xs">
+                                        📦
+                                    </div>
+                                @endif
+                            </td>
                             <td class="px-4 py-3 font-semibold">{{ $wish->title }}</td>
                             <td class="px-4 py-3">{{ $wish->receiver }}</td>
                             <td class="px-4 py-3 text-gray-600">{{ Str::limit($wish->description, 40) }}</td>
-                            <td class="px-4 py-3 text-right space-x-2">
+                            <td class="px-4 py-3 text-right space-x-2" onclick="event.stopPropagation()">
                                 <a href="{{ route('admin.wishes.edit', $wish) }}" class="text-blue-600 hover:text-blue-800 font-medium">
                                     Bearbeiten
                                 </a>

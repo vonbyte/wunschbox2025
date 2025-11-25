@@ -14,12 +14,37 @@
             <p class="text-white/80 text-lg">Hier sind meine Weihnachtswünsche</p>
         </div>
         @forelse($wishes as $wish)
-            <div class="bg-white rounded-xl shadow-lg p-6 md:p-8 mb-6 hover:shadow-xl transition">
-                <h2 class="text-2xl font-bold text-christmas-red mb-3">{{ $wish->title }}</h2>
-                @if($wish->description)
-                    <p class="text-gray-700 leading-relaxed">{{ $wish->description }}</p>
-                @endif
-            </div>
+            <a href="{{ route('wish.show', $wish) }}" class="block group">
+                <div class="bg-white rounded-xl shadow-lg p-6 md:p-8 mb-6 hover:shadow-2xl transition-all duration-200 transform hover:-translate-y-1">
+
+                    @if($wish->image)
+                        <div class="mb-4 overflow-hidden rounded-lg">
+                            <img
+                                src="{{ Storage::url($wish->image) }}"
+                                alt="{{ $wish->title }}"
+                                class="w-full h-64 object-cover group-hover:scale-105 transition-transform duration-200">
+                        </div>
+                    @endif
+
+                    <h2 class="text-2xl font-bold text-christmas-red mb-3 group-hover:text-red-700 transition">
+                        {{ $wish->title }}
+                    </h2>
+
+                    @if($wish->description)
+                        <p class="text-gray-700 leading-relaxed mb-4 line-clamp-3">
+                            {{ $wish->description }}
+                        </p>
+                    @endif
+
+                    <!-- "View More" indicator -->
+                    <div class="flex items-center text-christmas-red font-semibold group-hover:translate-x-2 transition">
+                        Details ansehen
+                        <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                        </svg>
+                    </div>
+                </div>
+            </a>
         @empty
             <div class="bg-white rounded-xl shadow-lg p-12 text-center">
                 <div class="text-6xl mb-4">🎁</div>

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\AdminStoreWishRequest;
 use App\Models\Wish;
 use Illuminate\Http\Request;
 
@@ -16,16 +17,15 @@ class AdminController extends Controller
         return view('admin.dashboard', compact('guestWishes', 'myWishes'));
     }
 
-    public function store(Request $request)
+    public function store(AdminStoreWishRequest $request)
     {
-        $validatedData = $request->validate([
-            'title' => 'required',
-            'description' => 'nullable',
-            'image' => 'nullable',
-            'example_links' => 'nullable',
-        ]);
+        $validatedData = $request->validated();
+
+        $validatedData['example_links'] = explode('\n',
+            $validatedData['example_links']);
         $validatedData['is_public'] = true;
         $validatedData['receiver'] = auth()->user()->name;
+
         Wish::create($validatedData);
 
         return back()->with('success', 'Wunsch hinzugefügt!');
@@ -33,21 +33,22 @@ class AdminController extends Controller
 
     public function edit(Wish $wish)
     {
+        $wish->example_links = implode('\n',$wish->example_links);
         return view('admin.edit', compact('wish'));
     }
 
-    public function update(Request $request, Wish $wish) {
-        $validatedData = $request->validate([
-            'title' => 'required',
-            'description' => 'nullable',
-            'image' => 'nullable',
-            'receiver' => 'required',
-            'example_links' => 'nullable',
-        ]);
+    public function update(AdminStoreWishRequest $request, Wish $wish)
+    {
+        $validatedData = $request->validated();
+
+        $validatedData['example_links'] = explode('\n',
+            $validatedData['example_links']);
 
         $wish->update($validatedData);
 
-        return redirect()->route('admin.index')->with('success', 'Wunsch erfolgreich geändert!');
+        return redirect()
+            ->route('admin.index')
+            ->with('success', 'Wunsch erfolgreich geändert!');
     }
 
     public function togglePublic(Wish $wish)
@@ -59,6 +60,7 @@ class AdminController extends Controller
     public function destroy(Wish $wish)
     {
         $wish->delete();
-        return back()->with('success','Wunsch dauerhaft gelöscht!');
+        return back()->with('success', 'Wunsch dauerhaft gelöscht!');
     }
+
 }
