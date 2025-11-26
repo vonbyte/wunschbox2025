@@ -39,14 +39,16 @@
             <label for="receiver" class="block text-sm font-medium text-gray-700 mb-2">
                 Dein Name *
             </label>
-            <input
+            <select
                 type="text"
                 id="receiver"
                 name="receiver"
                 value="{{ old('receiver', $wish?->receiver) }}"
                 required
-                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-christmas-red focus:border-transparent transition"
-                placeholder="Wie heißt du?">
+                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-christmas-red focus:border-transparent transition">
+                <option selected="selected" value="Sonia">Sonia</option>
+                <option value="Tanja">Tanja</option>
+            </select>
             @error('receiver')
             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
             @enderror
