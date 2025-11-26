@@ -27,12 +27,33 @@
 
             <!-- Image (if exists) -->
             @if($wish->image)
-                <div class="relative">
-                    <img
-                        src="{{ Storage::url($wish->image) }}"
-                        alt="{{ $wish->title }}"
-                        class="w-full h-96 object-cover">
+                <div class="relative bg-gray-100">
+                    <picture class="text-center">
+                        <!-- Mobile: smaller height -->
+                        <source media="(max-width: 640px)"
+                                srcset="{{ Storage::url($wish->image) }}">
+                        <!-- Tablet and up: medium height -->
+                        <source media="(max-width: 1024px)"
+                                srcset="{{ Storage::url($wish->image) }}">
+                        <!-- Desktop: full size -->
+                        <img
+                            src="{{ Storage::url($wish->image) }}"
+                            alt="{{ $wish->title }}"
+                            class="w-full max-w-[100%] h-64 sm:h-80 md:h-96 lg:h-[32rem] object-contain self-center"
+                            loading="eager">
+                    </picture>
                     <div class="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
+                </div>
+            @else
+                <div class="relative bg-gray-100 rounded flex items-center justify-center text-gray-400 text-xs">
+                    <svg class="w-64 h-64 text-blue-400 opacity-40" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 2v20M2 12h20M6 6l12 12M18 6L6 18"/>
+                        <circle cx="12" cy="12" r="2" fill="currentColor"/>
+                        <circle cx="12" cy="4" r="1.5" fill="currentColor"/>
+                        <circle cx="12" cy="20" r="1.5" fill="currentColor"/>
+                        <circle cx="4" cy="12" r="1.5" fill="currentColor"/>
+                        <circle cx="20" cy="12" r="1.5" fill="currentColor"/>
+                    </svg>
                 </div>
             @endif
 

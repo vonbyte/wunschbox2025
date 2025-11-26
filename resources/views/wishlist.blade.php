@@ -13,35 +13,56 @@
             <h1 class="text-5xl font-bold text-white mb-3">⭐ Meine Wunschliste ⭐</h1>
             <p class="text-white/80 text-lg">Hier sind meine Weihnachtswünsche</p>
         </div>
+
         @forelse($wishes as $wish)
-            <a href="{{ route('wish.show', $wish) }}" class="block group">
-                <div class="bg-white rounded-xl shadow-lg p-6 md:p-8 mb-6 hover:shadow-2xl transition-all duration-200 transform hover:-translate-y-1">
+            <a href="{{ route('wish.show', $wish) }}" class="block group mb-4">
+                <div class="bg-white rounded-lg shadow-md hover:shadow-xl transition-shadow duration-200 p-4">
 
-                    @if($wish->image)
-                        <div class="mb-4 overflow-hidden rounded-lg">
-                            <img
-                                src="{{ Storage::url($wish->image) }}"
-                                alt="{{ $wish->title }}"
-                                class="w-full h-64 object-cover group-hover:scale-105 transition-transform duration-200">
+                    <div class="flex gap-4">
+
+                        <!-- Small Thumbnail (120x90px) -->
+                        <div class="flex-shrink-0">
+                            @if($wish->image)
+                                <div class="w-32 h-32 rounded-lg overflow-hidden bg-gray-100">
+                                    <img
+                                        src="{{ Storage::url($wish->image_thumbnail ?? $wish->image) }}"
+                                        alt="{{ $wish->title }}"
+                                        class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
+                                        loading="lazy">
+                                </div>
+                            @else
+                                <div class="w-full h-full flex items-center justify-center">
+                                    <svg class="w-32 h-24 text-blue-400 opacity-40" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 2v20M2 12h20M6 6l12 12M18 6L6 18"/>
+                                        <circle cx="12" cy="12" r="2" fill="currentColor"/>
+                                        <circle cx="12" cy="4" r="1.5" fill="currentColor"/>
+                                        <circle cx="12" cy="20" r="1.5" fill="currentColor"/>
+                                        <circle cx="4" cy="12" r="1.5" fill="currentColor"/>
+                                        <circle cx="20" cy="12" r="1.5" fill="currentColor"/>
+                                    </svg>
+                                </div>
+                            @endif
                         </div>
-                    @endif
 
-                    <h2 class="text-2xl font-bold text-christmas-red mb-3 group-hover:text-red-700 transition">
-                        {{ $wish->title }}
-                    </h2>
+                        <!-- Content -->
+                        <div class="flex-1 min-w-0">
+                            <h2 class="text-xl font-bold text-christmas-red mb-2 group-hover:text-red-700 transition line-clamp-1">
+                                {{ $wish->title }}
+                            </h2>
 
-                    @if($wish->description)
-                        <p class="text-gray-700 leading-relaxed mb-4 line-clamp-3">
-                            {{ $wish->description }}
-                        </p>
-                    @endif
+                            @if($wish->description)
+                                <p class="text-gray-600 text-sm leading-relaxed line-clamp-2 mb-2">
+                                    {{ $wish->description }}
+                                </p>
+                            @endif
 
-                    <!-- "View More" indicator -->
-                    <div class="flex items-center text-christmas-red font-semibold group-hover:translate-x-2 transition">
-                        Details ansehen
-                        <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-                        </svg>
+                            <div class="flex items-center text-christmas-red text-sm font-medium group-hover:translate-x-1 transition">
+                                Details ansehen
+                                <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                                </svg>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </a>
@@ -52,6 +73,7 @@
                 <p class="text-gray-600">Schau später wieder vorbei!</p>
             </div>
         @endforelse
+
         <div class="text-center mt-8">
             <a href="{{ route('wishbox') }}" class="inline-block bg-white hover:bg-gray-100 text-christmas-red font-bold py-3 px-8 rounded-lg transition shadow-lg">
                 ← Zurück zur Wunschbox

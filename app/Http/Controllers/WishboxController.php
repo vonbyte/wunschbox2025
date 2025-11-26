@@ -18,8 +18,7 @@ class WishboxController extends Controller
 
     public function store(StoreWishRequest $request)
     {
-        $validatedData = $request->validated();
-        $wishData = $this->wishService->processWishData($validatedData);
+        $wishData = $this->wishService->processWishData($request);
 
         $wishData['is_public'] = false;
 

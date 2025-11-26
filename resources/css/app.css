@@ -5,6 +5,15 @@
 @source '../**/*.blade.php';
 @source '../**/*.js';
 
+/* Christmas Color Palette */
+@theme {
+    --color-christmas-red: #c41e3a;
+    --color-christmas-red-dark: #a01628;
+    --color-christmas-green: #165b33;
+    --color-christmas-green-light: #2d8659;
+    --color-christmas-gold: #ffd700;
+}
+
 @layer components {
     .snowflake {
         position  : fixed;

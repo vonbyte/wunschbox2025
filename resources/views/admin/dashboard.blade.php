@@ -68,10 +68,23 @@
                         <tr class="hover:bg-gray-50 cursor-pointer" onclick="window.location='{{ route('wish.show', $wish) }}'">
                             <td class="px-4 py-3">
                                 @if($wish->image)
-                                    <img src="{{ Storage::url($wish->image) }}" alt="{{ $wish->title }}" class="w-12 h-12 object-cover rounded">
+                                    <div class="mb-4 overflow-hidden rounded-lg bg-gray-100">
+                                        <img
+                                            src="{{ Storage::url($wish->image_thumbnail ?? $wish->image) }}"
+                                            alt="{{ $wish->title }}"
+                                            class="w-auto max-w-100 h-48 sm:h-56 md:h-64 object-cover group-hover:scale-105 transition-transform duration-200"
+                                            loading="lazy">
+                                    </div>
                                 @else
-                                    <div class="w-12 h-12 bg-gray-200 rounded flex items-center justify-center text-gray-400 text-xs">
-                                        📦
+                                    <div class="w-full h-full flex items-center justify-center">
+                                        <svg class="w-32 h-24 text-blue-400 opacity-40" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 2v20M2 12h20M6 6l12 12M18 6L6 18"/>
+                                            <circle cx="12" cy="12" r="2" fill="currentColor"/>
+                                            <circle cx="12" cy="4" r="1.5" fill="currentColor"/>
+                                            <circle cx="12" cy="20" r="1.5" fill="currentColor"/>
+                                            <circle cx="4" cy="12" r="1.5" fill="currentColor"/>
+                                            <circle cx="20" cy="12" r="1.5" fill="currentColor"/>
+                                        </svg>
                                     </div>
                                 @endif
                             </td>

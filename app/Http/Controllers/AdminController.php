@@ -22,9 +22,8 @@ class AdminController extends Controller
 
     public function store(AdminStoreWishRequest $request)
     {
-        $validatedData = $request->validated();
 
-        $wishData = $this->wishService->processWishData($validatedData, $request);
+        $wishData = $this->wishService->processWishData($request);
 
         $wishData['is_public'] = true;
         $wishData['receiver'] = auth()->user()->name;
@@ -42,9 +41,8 @@ class AdminController extends Controller
 
     public function update(AdminStoreWishRequest $request, Wish $wish)
     {
-        $validatedData = $request->validated();
 
-        $wishData = $this->wishService->processWishData($validatedData, $request);
+        $wishData = $this->wishService->processWishData($request, $wish);
 
         $wish->update($wishData);
 
@@ -61,7 +59,7 @@ class AdminController extends Controller
 
     public function destroy(Wish $wish)
     {
-        $wish->delete();
+        $this->wishService->deleteWish($wish);
         return back()->with('success', 'Wunsch dauerhaft gelöscht!');
     }
 

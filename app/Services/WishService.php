@@ -8,19 +8,25 @@ use Illuminate\Support\Facades\Storage;
 
 class WishService
 {
+    public function __construct(private readonly ImageService $imageService) {}
+
     /**
      * Process validated wish data (handle image upload and link parsing)
      */
-    public function processWishData(array $validatedData, Request $request, ?Wish $existingWish = null): array
+    public function processWishData(Request $request, ?Wish $existingWish = null): array
     {
+        $validatedData = $request->validated();
         // Handle image upload
         if ($request->hasFile('image')) {
             // Delete old image if updating
             if ($existingWish && $existingWish->image) {
-                Storage::disk('public')->delete($existingWish->image);
+                $this->imageService->deleteWithThumbnail($existingWish->image);
             }
 
-            $validatedData['image'] = $request->file('image')->store('wishes', 'public');
+            // Store image with thumbnail
+            $imagePaths = $this->imageService->storeWithThumbnail($request->file('image'));
+            $validatedData['image'] = $imagePaths['original'];
+            $validatedData['image_thumbnail'] = $imagePaths['thumbnail'];
         }
 
         // Parse example links
@@ -45,7 +51,7 @@ class WishService
     public function deleteWish(Wish $wish): void
     {
         if ($wish->image) {
-            Storage::disk('public')->delete($wish->image);
+            $this->imageService->deleteWithThumbnail($wish->image);
         }
 
         $wish->delete();
