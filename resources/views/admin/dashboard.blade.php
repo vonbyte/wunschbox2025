@@ -32,89 +32,6 @@
         </div>
     @endif
 
-    <!-- Add My Wish -->
-    <div class="bg-white rounded-lg shadow-md p-6 mb-8">
-        <h2 class="text-xl font-bold text-gray-800 mb-4 border-b-2 border-christmas-red pb-2">
-            ➕ Meinen Wunsch hinzufügen
-        </h2>
-        <x-wish-form
-            :action="route('admin.wishes.store')"
-            :show-receiver="true"
-            submit-text="Hinzufügen"
-            class="max-w-2xl"
-        />
-    </div>
-
-    <!-- My Public Wishes -->
-    <div class="bg-white rounded-lg shadow-md p-6 mb-8">
-        <h2 class="text-xl font-bold text-gray-800 mb-4 border-b-2 border-christmas-red pb-2">
-            ⭐ Meine öffentliche Wunschliste ({{ $myWishes->count() }})
-        </h2>
-
-        @if($myWishes->isEmpty())
-            <p class="text-gray-500 py-4">Noch keine Wünsche auf deiner öffentlichen Liste...</p>
-        @else
-            <div class="overflow-x-auto">
-                <table class="w-full">
-                    <thead class="bg-gray-50">
-                    <tr>
-                        <th class="px-4 py-3 text-left text-sm font-semibold text-gray-700">Titel</th>
-                        <th class="px-4 py-3 text-left text-sm font-semibold text-gray-700">Beschreibung</th>
-                        <th class="px-4 py-3 text-right text-sm font-semibold text-gray-700">Aktionen</th>
-                    </tr>
-                    </thead>
-                    <tbody class="divide-y divide-gray-200">
-                    @foreach($myWishes as $wish)
-                        <tr class="hover:bg-gray-50 cursor-pointer" onclick="window.location='{{ route('wish.show', $wish) }}'">
-                            <td class="px-4 py-3">
-                                @if($wish->image)
-                                    <div class="mb-4 overflow-hidden rounded-lg bg-gray-100">
-                                        <img
-                                            src="{{ Storage::url($wish->image_thumbnail ?? $wish->image) }}"
-                                            alt="{{ $wish->title }}"
-                                            class="w-auto max-w-100 h-48 sm:h-56 md:h-64 object-cover group-hover:scale-105 transition-transform duration-200"
-                                            loading="lazy">
-                                    </div>
-                                @else
-                                    <div class="w-full h-full flex items-center justify-center">
-                                        <svg class="w-32 h-24 text-blue-400 opacity-40" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 2v20M2 12h20M6 6l12 12M18 6L6 18"/>
-                                            <circle cx="12" cy="12" r="2" fill="currentColor"/>
-                                            <circle cx="12" cy="4" r="1.5" fill="currentColor"/>
-                                            <circle cx="12" cy="20" r="1.5" fill="currentColor"/>
-                                            <circle cx="4" cy="12" r="1.5" fill="currentColor"/>
-                                            <circle cx="20" cy="12" r="1.5" fill="currentColor"/>
-                                        </svg>
-                                    </div>
-                                @endif
-                            </td>
-                            <td class="px-4 py-3 font-semibold">{{ $wish->title }}</td>
-                            <td class="px-4 py-3">{{ $wish->receiver }}</td>
-                            <td class="px-4 py-3 text-gray-600">{{ Str::limit($wish->description, 40) }}</td>
-                            <td class="px-4 py-3 text-right space-x-2" onclick="event.stopPropagation()">
-                                <a href="{{ route('admin.wishes.edit', $wish) }}" class="text-blue-600 hover:text-blue-800 font-medium">
-                                    Bearbeiten
-                                </a>
-                                <form method="POST" action="{{ route('admin.wishes.toggle', $wish) }}" class="inline">
-                                    @csrf @method('PATCH')
-                                    <button type="submit" class="text-green-600 hover:text-green-800 font-medium">
-                                        → Öffentlich
-                                    </button>
-                                </form>
-                                <form method="POST" action="{{ route('admin.wishes.destroy', $wish) }}" class="inline" onsubmit="return confirm('Wirklich löschen?')">
-                                    @csrf @method('DELETE')
-                                    <button type="submit" class="text-red-600 hover:text-red-800 font-medium">
-                                        Löschen
-                                    </button>
-                                </form>
-                            </td>
-                        </tr>
-                    @endforeach
-                    </tbody>
-                </table>
-            </div>
-        @endif
-    </div>
 
     <!-- Guest Wishes -->
     <div class="bg-white rounded-lg shadow-md p-6">
@@ -129,51 +46,239 @@
                 <table class="w-full">
                     <thead class="bg-gray-50">
                     <tr>
-                        <th class="px-4 py-3 text-left text-sm font-semibold text-gray-700">Titel</th>
-                        <th class="px-4 py-3 text-left text-sm font-semibold text-gray-700">Von</th>
-                        <th class="px-4 py-3 text-left text-sm font-semibold text-gray-700">Beschreibung</th>
-                        <th class="px-4 py-3 text-right text-sm font-semibold text-gray-700">Aktionen</th>
+                        <th class="px-3 py-3 text-left text-xs font-semibold text-gray-700 w-16">#</th>
+                        <th class="px-3 py-3 text-left text-xs font-semibold text-gray-700 w-24">Bild</th>
+                        <th class="px-3 py-3 text-left text-xs font-semibold text-gray-700">Titel</th>
+                        <th class="px-3 py-3 text-left text-xs font-semibold text-gray-700 w-32">Von</th>
+                        <th class="px-3 py-3 text-left text-xs font-semibold text-gray-700 w-32">Status</th>
+                        <th class="px-3 py-3 text-right text-xs font-semibold text-gray-700 w-64">Aktionen</th>
                     </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-200">
                     @foreach($guestWishes as $wish)
-                        <tr class="hover:bg-gray-50 cursor-pointer" onclick="window.location='{{ route('wish.show', $wish) }}'">
-                            <td class="px-4 py-3">
+                        <tr class="hover:bg-gray-50">
+                            <!-- Sort Nr -->
+                            <td class="px-3 py-3">
+                                <form method="POST" action="{{ route('admin.wishes.update-sort', $wish) }}"
+                                      class="flex items-center">
+                                    @csrf @method('PATCH')
+                                    <input
+                                        type="text"
+                                        name="sortnr"
+                                        value="{{ $wish->sortnr }}"
+                                        class="w-14 px-2 py-1 text-sm border border-gray-300 rounded"
+                                        onchange="this.form.submit()">
+                                </form>
+                            </td>
+
+                            <!-- Image -->
+                            <td class="px-3 py-3">
                                 @if($wish->image)
-                                    <img src="{{ Storage::url($wish->image) }}" alt="{{ $wish->title }}" class="w-12 h-12 object-cover rounded">
+                                    <img src="{{ Storage::url($wish->image_thumbnail ?? $wish->image) }}"
+                                         alt="{{ $wish->title }}"
+                                         class="w-16 h-16 object-cover rounded">
                                 @else
-                                    <div class="w-12 h-12 bg-gray-200 rounded flex items-center justify-center text-gray-400 text-xs">
-                                        📦
+                                    <div class="w-16 h-16 bg-gray-100 rounded flex items-center justify-center">
+                                        <svg class="w-8 h-8 text-gray-300" viewBox="0 0 24 24" fill="currentColor">
+                                            <path d="M12 2L9 8h2l-2 5h2l-3 7h8l-3-7h2l-2-5h2l-3-6z"/>
+                                        </svg>
                                     </div>
                                 @endif
                             </td>
-                            <td class="px-4 py-3 font-semibold">{{ $wish->title }}</td>
-                            <td class="px-4 py-3">{{ $wish->receiver }}</td>
-                            <td class="px-4 py-3 text-gray-600">{{ Str::limit($wish->description, 40) }}</td>
-                            <td class="px-4 py-3 text-right space-x-2" onclick="event.stopPropagation()">
-                                <a href="{{ route('admin.wishes.edit', $wish) }}" class="text-blue-600 hover:text-blue-800 font-medium">
-                                    Bearbeiten
+
+                            <!-- Title -->
+                            <td class="px-3 py-3">
+                                <a href="{{ route('wish.show', $wish) }}"
+                                   class="font-semibold text-gray-900 hover:text-christmas-red">
+                                    {{ $wish->title }}
                                 </a>
-                                <form method="POST" action="{{ route('admin.wishes.toggle', $wish) }}" class="inline">
+                                @if($wish->description)
+                                    <p class="text-sm text-gray-500 line-clamp-1">{{ Str::limit($wish->description, 50) }}</p>
+                                @endif
+                            </td>
+
+                            <!-- Receiver -->
+                            <td class="px-3 py-3 text-sm">{{ $wish->receiver }}</td>
+
+                            <!-- Status -->
+                            <td class="px-3 py-3">
+                                <form method="POST" action="{{ route('admin.wishes.update-status', $wish) }}">
                                     @csrf @method('PATCH')
-                                    <button type="submit" class="text-green-600 hover:text-green-800 font-medium">
-                                        → Öffentlich
-                                    </button>
+                                    <select
+                                        name="status"
+                                        onchange="this.form.submit()"
+                                        class="text-xs px-2 py-1 rounded border-0 font-medium
+                                                           {{ $wish->status_color === 'gray' ? 'bg-gray-100 text-gray-800' : '' }}
+                                                           {{ $wish->status_color === 'blue' ? 'bg-blue-100 text-blue-800' : '' }}
+                                                           {{ $wish->status_color === 'yellow' ? 'bg-yellow-100 text-yellow-800' : '' }}
+                                                           {{ $wish->status_color === 'green' ? 'bg-green-100 text-green-800' : '' }}">
+                                        @foreach(\App\Models\Wish::getStatuses() as $value => $label)
+                                            <option
+                                                value="{{ $value }}" {{ $wish->status === $value ? 'selected' : '' }}>
+                                                {{ $label }}
+                                            </option>
+                                        @endforeach
+                                    </select>
                                 </form>
-                                <form method="POST" action="{{ route('admin.wishes.destroy', $wish) }}" class="inline" onsubmit="return confirm('Wirklich löschen?')">
-                                    @csrf @method('DELETE')
-                                    <button type="submit" class="text-red-600 hover:text-red-800 font-medium">
-                                        Löschen
-                                    </button>
-                                </form>
+                            </td>
+
+                            <!-- Actions -->
+                            <td class="px-3 py-3 text-right">
+                                <div class="flex items-center justify-end gap-2">
+                                    <a href="{{ route('admin.wishes.edit', $wish) }}"
+                                       class="text-xs text-blue-600 hover:text-blue-800 font-medium">
+                                        Bearbeiten
+                                    </a>
+                                    <form method="POST" action="{{ route('admin.wishes.toggle', $wish) }}"
+                                          class="inline">
+                                        @csrf @method('PATCH')
+                                        <button type="submit"
+                                                class="text-xs text-green-600 hover:text-green-800 font-medium">
+                                            → Meine Liste
+                                        </button>
+                                    </form>
+                                    <form method="POST" action="{{ route('admin.wishes.destroy', $wish) }}"
+                                          class="inline" onsubmit="return confirm('Wirklich löschen?')">
+                                        @csrf @method('DELETE')
+                                        <button type="submit"
+                                                class="text-xs text-red-600 hover:text-red-800 font-medium">
+                                            Löschen
+                                        </button>
+                                    </form>
+                                </div>
                             </td>
                         </tr>
                     @endforeach
                     </tbody>
                 </table>
             </div>
+
         @endif
     </div>
+
+    <!-- Add My Wish -->
+    <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+        <h2 class="text-xl font-bold text-gray-800 mb-4 border-b-2 border-christmas-red pb-2">
+            ➕ Meinen Wunsch hinzufügen
+        </h2>
+        <x-wish-form
+            :action="route('admin.wishes.store')"
+            :show-receiver="true"
+            submit-text="Hinzufügen"
+            class="max-w-2xl"
+        />
+    </div>
+
+    <!-- My Public Wishes -->
+    <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg" x-data="{ open: false }">
+        <div class="p-6">
+            <button @click="open = !open" class="w-full flex items-center justify-between text-left">
+                <h3 class="text-2xl font-bold text-gray-800">
+                    ⭐ Meine öffentliche Wunschliste ({{ $myWishes->count() }})
+                </h3>
+                <svg class="w-6 h-6 transition-transform" :class="{ 'rotate-180': open }" fill="none"
+                     stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                </svg>
+            </button>
+
+            <div x-show="open" x-collapse class="mt-6">
+                @if($myWishes->isEmpty())
+                    <p class="text-gray-500 py-4">Noch keine Wünsche auf deiner öffentlichen Liste...</p>
+                @else
+                    <div class="overflow-x-auto">
+                        <table class="w-full">
+                            <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-3 py-3 text-left text-xs font-semibold text-gray-700 w-16">#</th>
+                                <th class="px-3 py-3 text-left text-xs font-semibold text-gray-700 w-24">Bild</th>
+                                <th class="px-3 py-3 text-left text-xs font-semibold text-gray-700">Titel</th>
+                                <th class="px-3 py-3 text-right text-xs font-semibold text-gray-700 w-48">Aktionen</th>
+                            </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-200">
+                            @foreach($myWishes as $wish)
+                                <tr class="hover:bg-gray-50">
+                                    <!-- Sort Nr -->
+                                    <td class="px-3 py-3">
+                                        <form method="POST" action="{{ route('admin.wishes.update-sort', $wish) }}"
+                                              class="flex items-center">
+                                            @csrf @method('PATCH')
+                                            <input
+                                                type="number"
+                                                name="sort_nr"
+                                                value="{{ $wish->sort_nr }}"
+                                                class="w-14 px-2 py-1 text-sm border border-gray-300 rounded"
+                                                min="0"
+                                                onchange="this.form.submit()">
+                                        </form>
+                                    </td>
+
+                                    <!-- Image -->
+                                    <td class="px-3 py-3">
+                                        @if($wish->image)
+                                            <img src="{{ Storage::url($wish->image_thumbnail ?? $wish->image) }}"
+                                                 alt="{{ $wish->title }}"
+                                                 class="w-16 h-16 object-cover rounded">
+                                        @else
+                                            <div class="w-16 h-16 bg-gray-100 rounded flex items-center justify-center">
+                                                <svg class="w-8 h-8 text-gray-300" viewBox="0 0 24 24"
+                                                     fill="currentColor">
+                                                    <path d="M12 2L9 8h2l-2 5h2l-3 7h8l-3-7h2l-2-5h2l-3-6z"/>
+                                                </svg>
+                                            </div>
+                                        @endif
+                                    </td>
+
+                                    <!-- Title -->
+                                    <td class="px-3 py-3">
+                                        <a href="{{ route('wish.show', $wish) }}"
+                                           class="font-semibold text-gray-900 hover:text-christmas-red">
+                                            {{ $wish->title }}
+                                        </a>
+                                        @if($wish->description)
+                                            <p class="text-sm text-gray-500 line-clamp-1">{{ Str::limit($wish->description, 60) }}</p>
+                                        @endif
+                                    </td>
+
+                                    <!-- Actions -->
+                                    <td class="px-3 py-3 text-right">
+                                        <div class="flex items-center justify-end gap-2">
+                                            <a href="{{ route('admin.wishes.edit', $wish) }}"
+                                               class="text-xs text-blue-600 hover:text-blue-800 font-medium">
+                                                Bearbeiten
+                                            </a>
+                                            <form method="POST" action="{{ route('admin.wishes.toggle', $wish) }}"
+                                                  class="inline">
+                                                @csrf @method('PATCH')
+                                                <button type="submit"
+                                                        class="text-xs text-orange-600 hover:text-orange-800 font-medium">
+                                                    Privat
+                                                </button>
+                                            </form>
+                                            <form method="POST" action="{{ route('admin.wishes.destroy', $wish) }}"
+                                                  class="inline" onsubmit="return confirm('Wirklich löschen?')">
+                                                @csrf @method('DELETE')
+                                                <button type="submit"
+                                                        class="text-xs text-red-600 hover:text-red-800 font-medium">
+                                                    Löschen
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                </tr>
+                            @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                @endif
+            </div>
+        </div>
+    </div>
+
 </div>
+
+<script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+
 </body>
 </html>

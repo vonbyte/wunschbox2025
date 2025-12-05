@@ -12,10 +12,20 @@ class AdminController extends Controller
 
     public function __construct(private readonly WishService $wishService) {}
 
-    public function index()
+    public function index(Request $request)
     {
-        $guestWishes = Wish::where('is_public', false)->latest()->get();
         $myWishes = Wish::where('is_public', true)->latest()->get();
+        $hasSort = $request->has('sortnr');
+        if ($hasSort) {
+            $sortOrder = $request->sortnr;
+            $guestWishes = Wish::orderBy('sortnr', $sortOrder)
+                ->where('is_public', false)
+                ->get();
+        } else {
+            $guestWishes = Wish::where('is_public', false)
+                ->latest()
+                ->get();
+        }
 
         return view('admin.dashboard', compact('guestWishes', 'myWishes'));
     }
@@ -27,6 +37,7 @@ class AdminController extends Controller
 
         $wishData['is_public'] = true;
         $wishData['receiver'] = auth()->user()->name;
+        $wishData['status'] = Wish::STATUS_IDEA;
 
         Wish::create($wishData);
 
@@ -49,6 +60,28 @@ class AdminController extends Controller
         return redirect()
             ->route('admin.index')
             ->with('success', 'Wunsch erfolgreich geändert!');
+    }
+
+    public function updateStatus(Request $request, Wish $wish)
+    {
+        $validated = $request->validate([
+            'status' => 'required|in:idea,open,ordered,delivered',
+        ]);
+
+        $wish->update(['status' => $validated['status']]);
+
+        return back()->with('success', 'Status aktualisiert!');
+    }
+
+    public function updateSortNr(Request $request, Wish $wish)
+    {
+        $validated = $request->validate([
+            'sortnr' => 'required|string',
+        ]);
+
+        $wish->update(['sortnr' => $validated['sortnr']]);
+
+        return back()->with('success', 'Sortierung aktualisiert!');
     }
 
     public function togglePublic(Wish $wish)
