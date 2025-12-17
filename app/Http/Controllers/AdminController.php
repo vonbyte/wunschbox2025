@@ -15,15 +15,16 @@ class AdminController extends Controller
     public function index(Request $request)
     {
         $myWishes = Wish::where('is_public', true)->latest()->get();
-        $hasSort = $request->has('sortnr');
-        if ($hasSort) {
-            $sortOrder = $request->sortnr;
-            $guestWishes = Wish::orderBy('sortnr', $sortOrder)
+        $hasFilter = $request->has('filter');
+
+        if ($hasFilter && in_array($request->filter, ['packed', 'unpacked', 'open','delivered'])) {
+            $scope = ucfirst($request->query('filter'));
+            $guestWishes = Wish::{$scope}()
                 ->where('is_public', false)
                 ->get();
         } else {
-            $guestWishes = Wish::where('is_public', false)
-                ->latest()
+            $guestWishes = Wish::sorted()
+                ->where('is_public', false)
                 ->get();
         }
 
