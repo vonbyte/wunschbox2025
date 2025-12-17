@@ -66,7 +66,7 @@ class AdminController extends Controller
     public function updateStatus(Request $request, Wish $wish)
     {
         $validated = $request->validate([
-            'status' => 'required|in:idea,open,ordered,delivered',
+            'status' => 'required|in:idea,open,ordered,delivered,packed,unpacked',
         ]);
 
         $wish->update(['status' => $validated['status']]);
@@ -95,6 +95,16 @@ class AdminController extends Controller
     {
         $this->wishService->deleteWish($wish);
         return back()->with('success', 'Wunsch dauerhaft gelöscht!');
+    }
+
+    public function updatePackageNr(Request $request, Wish $wish) {
+        $validated = $request->validate([
+            'package_nr' => 'required|integer',
+        ]);
+
+        $wish->update(['package_nr' => $validated['package_nr']]);
+
+        return back()->with('success', 'Päckchen-Nummer aktualisiert!');
     }
 
 }

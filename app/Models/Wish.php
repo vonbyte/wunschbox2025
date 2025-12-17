@@ -77,7 +77,7 @@ class Wish extends Model
             self::STATUS_ORDERED => 'yellow',
             self::STATUS_DELIVERED => 'orange',
             self::STATUS_PACKED => 'green',
-            self::STATUS_UNPACKED => 'brown',
+            self::STATUS_UNPACKED => 'purple',
             default => 'gray',
         };
     }
@@ -119,8 +119,8 @@ class Wish extends Model
     public function scopeOpen($query)
     {
         return $query->where('status', 'open')
-            ->where('status', 'idea')
-            ->where('status', 'ordered')
+            ->orWhere('status', 'idea')
+            ->orWhere('status', 'ordered')
             ->orderBy('created_at', 'desc');
     }
 

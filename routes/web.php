@@ -26,6 +26,7 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     Route::patch('/wishes/{wish}/toggle', [App\Http\Controllers\AdminController::class, 'togglePublic'])->name('wishes.toggle');
     Route::patch('/wishes/{wish}/status', [App\Http\Controllers\AdminController::class, 'updateStatus'])->name('wishes.update-status');
     Route::patch('/wishes/{wish}/sort', [App\Http\Controllers\AdminController::class, 'updateSortNr'])->name('wishes.update-sort');
+    Route::patch('/wishes/{wish}/nr', [App\Http\Controllers\AdminController::class, 'updatePackageNr'])->name('wishes.update-nr');
 
 });
 

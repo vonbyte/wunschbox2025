@@ -39,6 +39,34 @@
             📝 Gäste-Wünsche ({{ $guestWishes->count() }})
         </h2>
 
+        <div class="mb-4 flex gap-2">
+            <a href="{{ route('admin.index') }}"
+               class="px-4 py-2 rounded text-sm font-medium transition
+                  {{ !request('filter') ? 'bg-gray-800 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300' }}">
+                Alle
+            </a>
+            <a href="{{ route('admin.index', ['filter' => 'open']) }}"
+               class="px-4 py-2 rounded text-sm font-medium transition
+                  {{ request('filter') === 'open' ? 'bg-gray-800 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300' }}">
+                Offen
+            </a>
+            <a href="{{ route('admin.index', ['filter' => 'delivered']) }}"
+               class="px-4 py-2 rounded text-sm font-medium transition
+                  {{ request('filter') === 'delivered' ? 'bg-gray-800 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300' }}">
+                Geschenk
+            </a>
+            <a href="{{ route('admin.index', ['filter' => 'packed']) }}"
+               class="px-4 py-2 rounded text-sm font-medium transition
+                  {{ request('filter') === 'packed' ? 'bg-gray-800 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300' }}">
+                Verpackt
+            </a>
+            <a href="{{ route('admin.index', ['filter' => 'unpacked']) }}"
+               class="px-4 py-2 rounded text-sm font-medium transition
+                  {{ request('filter') === 'unpacked' ? 'bg-gray-800 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300' }}">
+                Ausgepackt
+            </a>
+        </div>
+
         @if($guestWishes->isEmpty())
             <p class="text-gray-500 py-4">Noch keine Wünsche von Gästen...</p>
         @else
@@ -47,6 +75,7 @@
                     <thead class="bg-gray-50">
                     <tr>
                         <th class="px-3 py-3 text-left text-xs font-semibold text-gray-700 w-16">#</th>
+                        <th class="px-3 py-3 text-left text-xs font-semibold text-gray-700 w-16">Sortierung</th>
                         <th class="px-3 py-3 text-left text-xs font-semibold text-gray-700 w-24">Bild</th>
                         <th class="px-3 py-3 text-left text-xs font-semibold text-gray-700">Titel</th>
                         <th class="px-3 py-3 text-left text-xs font-semibold text-gray-700 w-32">Von</th>
@@ -57,6 +86,19 @@
                     <tbody class="divide-y divide-gray-200">
                     @foreach($guestWishes as $wish)
                         <tr class="hover:bg-gray-50">
+                            <!-- Package Nr -->
+                            <td class="px-3 py-3">
+                                <form method="POST" action="{{ route('admin.wishes.update-nr', $wish) }}"
+                                      class="flex items-center">
+                                    @csrf @method('PATCH')
+                                    <input
+                                        type="text"
+                                        name="package_nr"
+                                        value="{{ $wish->package_nr }}"
+                                        class="w-14 px-2 py-1 text-sm border border-gray-300 rounded"
+                                        onchange="this.form.submit()">
+                                </form>
+                            </td>
                             <!-- Sort Nr -->
                             <td class="px-3 py-3">
                                 <form method="POST" action="{{ route('admin.wishes.update-sort', $wish) }}"
@@ -107,11 +149,7 @@
                                     <select
                                         name="status"
                                         onchange="this.form.submit()"
-                                        class="text-xs px-2 py-1 rounded border-0 font-medium
-                                                           {{ $wish->status_color === 'gray' ? 'bg-gray-100 text-gray-800' : '' }}
-                                                           {{ $wish->status_color === 'blue' ? 'bg-blue-100 text-blue-800' : '' }}
-                                                           {{ $wish->status_color === 'yellow' ? 'bg-yellow-100 text-yellow-800' : '' }}
-                                                           {{ $wish->status_color === 'green' ? 'bg-green-100 text-green-800' : '' }}">
+                                        class="text-xs px-2 py-1 rounded border-0 font-medium state-{{$wish->status_color}}">
                                         @foreach(\App\Models\Wish::getStatuses() as $value => $label)
                                             <option
                                                 value="{{ $value }}" {{ $wish->status === $value ? 'selected' : '' }}>

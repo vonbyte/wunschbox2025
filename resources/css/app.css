@@ -6,7 +6,8 @@
 @source '../**/*.js';
 
 /* Christmas Color Palette */
-@theme {
+@theme inline {
+    --color-test: #a1c423;
     --color-christmas-red: #c41e3a;
     --color-christmas-red-dark: #a01628;
     --color-christmas-green: #165b33;
@@ -36,4 +37,29 @@
         -webkit-box-orient: vertical;
         overflow: hidden;
     }
+}
+
+.state-green {
+    color: var(--color-green-800);
+    background-color: var(--color-green-100);
+}
+.state-gray {
+    color: var(--color-gray-800);
+    background-color: var(--color-gray-100);
+}
+.state-yellow {
+    color: var(--color-yellow-800);
+    background-color: var(--color-yellow-100);
+}
+.state-blue {
+    color: var(--color-blue-800);
+    background-color: var(--color-blue-100);
+}
+.state-orange {
+    color: var(--color-orange-800);
+    background-color: var(--color-orange-100);
+}
+.state-purple {
+    color: var(--color-purple-800);
+    background-color: var(--color-purple-100);
 }
