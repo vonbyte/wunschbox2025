@@ -47,16 +47,16 @@ test('updating a wish keeps its receiver', function () {
 
 test('sort number of a public wish can be updated', function () {
     $admin = User::factory()->create(['is_admin' => true]);
-    $wish = Wish::factory()->create(['is_public' => true, 'sortnr' => '000']);
+    $wish = Wish::factory()->create(['is_public' => true]);
 
     $this->actingAs($admin)
-        ->patch(route('admin.wishes.update-sort', $wish), ['sortnr' => '005'])
+        ->patch(route('admin.wishes.update-sort', $wish), ['sortnr' => '5'])
         ->assertSessionHasNoErrors();
 
-    expect($wish->fresh()->sortnr)->toBe('005');
+    expect($wish->fresh()->sortnr)->toBe(5);
 });
 
-test('sort number is zero-padded so it orders numerically', function () {
+test('sort numbers order numerically', function () {
     $admin = User::factory()->create(['is_admin' => true]);
     $ten = Wish::factory()->create(['is_public' => true, 'title' => 'Zehn']);
     $five = Wish::factory()->create(['is_public' => true, 'title' => 'Fünf']);
@@ -64,37 +64,65 @@ test('sort number is zero-padded so it orders numerically', function () {
     $this->actingAs($admin)->patch(route('admin.wishes.update-sort', $ten), ['sortnr' => '10']);
     $this->actingAs($admin)->patch(route('admin.wishes.update-sort', $five), ['sortnr' => '5']);
 
-    expect($ten->fresh()->sortnr)->toBe('010')
-        ->and($five->fresh()->sortnr)->toBe('005');
-
     $this->get(route('wishlist'))->assertSeeInOrder(['Fünf', 'Zehn']);
 });
 
-test('sort number must be a number with at most three digits', function (string $sortnr) {
+test('sort number must be a whole number from 0', function (string $sortnr) {
     $admin = User::factory()->create(['is_admin' => true]);
-    $wish = Wish::factory()->create(['is_public' => true, 'sortnr' => '000']);
+    $wish = Wish::factory()->create(['is_public' => true, 'sortnr' => 3]);
 
     $this->actingAs($admin)
         ->patch(route('admin.wishes.update-sort', $wish), ['sortnr' => $sortnr])
         ->assertSessionHasErrors('sortnr');
 
-    expect($wish->fresh()->sortnr)->toBe('000');
-})->with(['abc', '-1', '1000', '1.5']);
+    expect($wish->fresh()->sortnr)->toBe(3);
+})->with(['abc', '-1', '1.5', '']);
+
+test('invalid quick edits show an error on the dashboard', function () {
+    $admin = User::factory()->create(['is_admin' => true]);
+    $wish = Wish::factory()->create();
+
+    $this->actingAs($admin)
+        ->from(route('admin.index'))
+        ->followingRedirects()
+        ->patch(route('admin.wishes.update-sort', $wish), ['sortnr' => 'abc'])
+        ->assertSee('Nicht gespeichert: Die Sortierung muss eine ganze Zahl ab 0 sein.');
+
+    $this->actingAs($admin)
+        ->from(route('admin.index'))
+        ->followingRedirects()
+        ->patch(route('admin.wishes.update-nr', $wish), ['package_nr' => '-2'])
+        ->assertSee('Nicht gespeichert: Die Päckchen-Nummer muss eine ganze Zahl ab 0 sein.');
+});
+
+test('migration turns text sort numbers into integers', function () {
+    $migration = require database_path('migrations/2026_10_24_130000_change_sortnr_to_integer_on_wishes.php');
+    $migration->down();
+
+    $ids = collect(['5', '10', '007', 'abc'])->map(fn ($sortnr) => DB::table('wishes')->insertGetId([
+        'title' => "Wunsch {$sortnr}", 'receiver' => 'Sonia', 'sortnr' => $sortnr,
+    ]));
+
+    $migration->up();
+
+    expect(DB::table('wishes')->whereIn('id', $ids)->orderBy('id')->pluck('sortnr')->all())
+        ->toBe([5, 10, 7, 0]);
+});
 
 // Different statuses and creation dates make sure the order comes from sortnr,
 // not from the (is_public, status, sortnr) index or the creation date.
 function createPublicWishesInMixedOrder(): void
 {
     Wish::factory()->create([
-        'is_public' => true, 'sortnr' => '001', 'status' => 'packed',
+        'is_public' => true, 'sortnr' => 1, 'status' => 'packed',
         'title' => 'Erster Wunsch', 'created_at' => now()->subDays(3),
     ]);
     Wish::factory()->create([
-        'is_public' => true, 'sortnr' => '020', 'status' => 'idea',
+        'is_public' => true, 'sortnr' => 20, 'status' => 'idea',
         'title' => 'Dritter Wunsch', 'created_at' => now()->subDays(2),
     ]);
     Wish::factory()->create([
-        'is_public' => true, 'sortnr' => '010', 'status' => 'open',
+        'is_public' => true, 'sortnr' => 10, 'status' => 'open',
         'title' => 'Zweiter Wunsch', 'created_at' => now()->subDay(),
     ]);
 }
@@ -195,4 +223,44 @@ test('svg uploads are rejected without storing a file', function () {
 
     expect(Wish::where('title', 'Wunsch mit SVG')->exists())->toBeFalse();
     expect(Storage::disk('public')->allFiles())->toBeEmpty();
+});
+
+test('guests can only pick receivers from the list', function () {
+    $this->post(route('wishbox.store'), [
+        'title' => 'Fremder Wunsch',
+        'receiver' => 'Max Muster',
+    ])->assertSessionHasErrors('receiver');
+
+    expect(Wish::where('title', 'Fremder Wunsch')->exists())->toBeFalse();
+});
+
+test('admin form saves the chosen receiver', function () {
+    $admin = User::factory()->create(['is_admin' => true, 'name' => 'Tanja']);
+
+    $this->actingAs($admin)
+        ->post(route('admin.wishes.store'), ['title' => 'Für Sonia', 'receiver' => 'Sonia'])
+        ->assertSessionHasNoErrors();
+
+    expect(Wish::firstWhere('title', 'Für Sonia'))
+        ->receiver->toBe('Sonia')
+        ->is_public->toBeTrue();
+});
+
+test('admins can keep a receiver outside the list but not set a new one', function () {
+    $admin = User::factory()->create(['is_admin' => true]);
+    $wish = Wish::factory()->create(['receiver' => 'Tanja B.']);
+
+    $this->actingAs($admin)
+        ->get(route('admin.wishes.edit', $wish))
+        ->assertSee('<option value="Tanja B." selected>', false);
+
+    $this->actingAs($admin)
+        ->patch(route('admin.wishes.update', $wish), ['title' => 'Neu', 'receiver' => 'Tanja B.'])
+        ->assertSessionHasNoErrors();
+
+    $this->actingAs($admin)
+        ->patch(route('admin.wishes.update', $wish), ['title' => 'Neu', 'receiver' => 'Max Muster'])
+        ->assertSessionHasErrors('receiver');
+
+    expect($wish->fresh()->receiver)->toBe('Tanja B.');
 });

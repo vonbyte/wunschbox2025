@@ -1,6 +1,5 @@
 <?php
 
-use App\Services\ImageService;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -15,14 +14,14 @@ return new class extends Migration
      */
     public function up(): void
     {
-        $imageService = app(ImageService::class);
-
         DB::table('wishes')
             ->whereNotNull('image')
             ->whereNull('image_thumbnail')
             // By id, not offset: updated rows drop out of the whereNull filter
-            ->eachById(function ($wish) use ($imageService) {
-                $thumbnailPath = $imageService->getThumbnailPath($wish->image);
+            ->eachById(function ($wish) {
+                // Same naming as ImageService at the time of this migration
+                $pathInfo = pathinfo($wish->image);
+                $thumbnailPath = $pathInfo['dirname'].'/'.$pathInfo['filename'].'_thumb.'.$pathInfo['extension'];
 
                 if (Storage::disk('public')->exists($thumbnailPath)) {
                     DB::table('wishes')

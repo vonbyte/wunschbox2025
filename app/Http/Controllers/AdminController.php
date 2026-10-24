@@ -37,7 +37,6 @@ class AdminController extends Controller
         $wishData = $this->wishService->processWishData($request);
 
         $wishData['is_public'] = true;
-        $wishData['receiver'] = auth()->user()->name;
         $wishData['status'] = Wish::STATUS_IDEA;
 
         Wish::create($wishData);
@@ -77,11 +76,12 @@ class AdminController extends Controller
     public function updateSortNr(Request $request, Wish $wish)
     {
         $validated = $request->validate([
-            'sortnr' => ['required', 'regex:/^\d{1,3}$/'],
+            'sortnr' => 'required|integer|min:0',
+        ], [
+            'sortnr' => 'Die Sortierung muss eine ganze Zahl ab 0 sein.',
         ]);
 
-        // sortnr is a string column, so pad it to keep the text order numeric
-        $wish->update(['sortnr' => str_pad($validated['sortnr'], 3, '0', STR_PAD_LEFT)]);
+        $wish->update(['sortnr' => $validated['sortnr']]);
 
         return back()->with('success', 'Sortierung aktualisiert!');
     }
@@ -100,7 +100,9 @@ class AdminController extends Controller
 
     public function updatePackageNr(Request $request, Wish $wish) {
         $validated = $request->validate([
-            'package_nr' => 'required|integer',
+            'package_nr' => 'required|integer|min:0',
+        ], [
+            'package_nr' => 'Die Päckchen-Nummer muss eine ganze Zahl ab 0 sein.',
         ]);
 
         $wish->update(['package_nr' => $validated['package_nr']]);

@@ -39,9 +39,9 @@
             <label for="receiver" class="block text-sm font-medium text-gray-700 mb-2">
                 Dein Name *
             </label>
-            @php($selectedReceiver = old('receiver', $wish?->receiver ?? 'Sonia'))
-            {{-- Keep receivers outside the default list (e.g. an admin's name) selectable --}}
-            @php($receivers = array_values(array_unique(['Sonia', 'Tanja', $selectedReceiver])))
+            @php($selectedReceiver = old('receiver', $wish?->receiver ?? \App\Models\Wish::RECEIVERS[0]))
+            {{-- Keep a stored receiver outside the list (e.g. an admin's name) selectable --}}
+            @php($receivers = array_values(array_unique(array_filter([...\App\Models\Wish::RECEIVERS, $wish?->receiver]))))
             <select
                 id="receiver"
                 name="receiver"

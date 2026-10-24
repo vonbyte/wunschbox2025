@@ -27,7 +27,8 @@ Route::middleware('guest')->group(function () {
         ->name('password.store');
 });
 
-Route::middleware('auth')->group(function () {
+// Admin check here too: a remember-me cookie logs users in without LoginRequest
+Route::middleware(['auth', 'admin'])->group(function () {
     Route::get('confirm-password', [ConfirmablePasswordController::class, 'show'])
         ->name('password.confirm');
 
@@ -37,7 +38,9 @@ Route::middleware('auth')->group(function () {
     Route::patch('profile', [ProfileController::class, 'update'])->name('profile.update');
 
     Route::put('password', [PasswordController::class, 'update'])->name('password.update');
+});
 
+Route::middleware('auth')->group(function () {
     Route::post('logout', [AuthenticatedSessionController::class, 'destroy'])
         ->name('logout');
 });

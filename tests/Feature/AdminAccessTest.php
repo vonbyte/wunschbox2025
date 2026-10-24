@@ -27,6 +27,24 @@ test('users without admin role cannot change or delete wishes', function () {
         ->is_public->toBeFalse();
 });
 
+test('users without admin role cannot use the profile', function () {
+    $user = User::factory()->create(['is_admin' => false]);
+
+    $this->actingAs($user)->get(route('profile.edit'))->assertForbidden();
+    $this->actingAs($user)
+        ->patch(route('profile.update'), ['name' => 'X', 'email' => 'x@example.com'])
+        ->assertForbidden();
+
+    expect($user->fresh()->email)->not->toBe('x@example.com');
+});
+
+test('users without admin role can still log out', function () {
+    $user = User::factory()->create(['is_admin' => false]);
+
+    $this->actingAs($user)->post(route('logout'))->assertRedirect('/');
+    $this->assertGuest();
+});
+
 test('admins can open the admin area', function () {
     $admin = User::factory()->create(['is_admin' => true]);
 

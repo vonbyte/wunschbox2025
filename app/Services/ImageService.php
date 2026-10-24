@@ -42,9 +42,7 @@ class ImageService
         $thumbnail = $this->imageManager->decodePath($fullPath);
         $thumbnail->cover(400, 300); // Crop to exact size
 
-        // Generate thumbnail path
-        $pathInfo = pathinfo($originalPath);
-        $thumbnailPath = $pathInfo['dirname'] . '/' . $pathInfo['filename'] . '_thumb.' . $pathInfo['extension'];
+        $thumbnailPath = $this->getThumbnailPath($originalPath);
 
         Storage::disk('public')->put(
             $thumbnailPath,
@@ -70,9 +68,7 @@ class ImageService
         Storage::disk('public')->delete($imagePath);
 
         // Delete thumbnail
-        $pathInfo = pathinfo($imagePath);
-        $thumbnailPath = $pathInfo['dirname'] . '/' . $pathInfo['filename'] . '_thumb.' . $pathInfo['extension'];
-        Storage::disk('public')->delete($thumbnailPath);
+        Storage::disk('public')->delete($this->getThumbnailPath($imagePath));
     }
 
     /**

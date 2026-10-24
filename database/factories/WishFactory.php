@@ -22,7 +22,7 @@ class WishFactory extends Factory
             'receiver' => fake()->randomElement(['Sonia', 'Tanja']),
             'is_public' => false,
             'status' => 'idea',
-            'sortnr' => '000',
+            'sortnr' => 0,
         ];
     }
 }

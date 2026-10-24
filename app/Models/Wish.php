@@ -23,6 +23,11 @@ class Wish extends Model
 
     const STATUS_UNPACKED = 'unpacked';
 
+    /**
+     * People guests can make a wish for
+     */
+    const RECEIVERS = ['Sonia', 'Tanja'];
+
     protected $fillable = [
         'title',
         'description',
@@ -41,6 +46,7 @@ class Wish extends Model
         return [
             'example_links' => 'array',
             'is_public' => 'boolean',
+            'sortnr' => 'integer',
         ];
     }
 

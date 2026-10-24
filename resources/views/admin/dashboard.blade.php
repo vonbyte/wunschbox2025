@@ -37,6 +37,12 @@
         </div>
     @endif
 
+    @if($errors->any())
+        <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-6 rounded">
+            Nicht gespeichert: {{ $errors->first() }}
+        </div>
+    @endif
+
 
     <!-- Guest Wishes -->
     <div class="bg-white rounded-lg shadow-md p-6">
@@ -97,11 +103,14 @@
                                       class="flex items-center">
                                     @csrf @method('PATCH')
                                     <input
-                                        type="text"
+                                        type="number"
                                         name="package_nr"
                                         value="{{ $wish->package_nr }}"
+                                        min="0"
+                                        step="1"
+                                        required
                                         class="w-14 px-2 py-1 text-sm border border-gray-300 rounded"
-                                        onchange="this.form.submit()">
+                                        onchange="this.form.requestSubmit()">
                                 </form>
                             </td>
                             <!-- Sort Nr -->
@@ -110,11 +119,14 @@
                                       class="flex items-center">
                                     @csrf @method('PATCH')
                                     <input
-                                        type="text"
+                                        type="number"
                                         name="sortnr"
                                         value="{{ $wish->sortnr }}"
+                                        min="0"
+                                        step="1"
+                                        required
                                         class="w-14 px-2 py-1 text-sm border border-gray-300 rounded"
-                                        onchange="this.form.submit()">
+                                        onchange="this.form.requestSubmit()">
                                 </form>
                             </td>
 
@@ -248,14 +260,14 @@
                                               class="flex items-center">
                                             @csrf @method('PATCH')
                                             <input
-                                                type="text"
+                                                type="number"
                                                 name="sortnr"
                                                 value="{{ $wish->sortnr }}"
-                                                inputmode="numeric"
-                                                pattern="\d{1,3}"
-                                                maxlength="3"
+                                                min="0"
+                                                step="1"
+                                                required
                                                 class="w-14 px-2 py-1 text-sm border border-gray-300 rounded"
-                                                onchange="this.form.submit()">
+                                                onchange="this.form.requestSubmit()">
                                         </form>
                                     </td>
 
