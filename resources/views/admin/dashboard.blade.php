@@ -15,12 +15,17 @@
             <h1 class="text-2xl font-bold">🎄 Wishbox Admin</h1>
             <p class="text-gray-400 text-sm">Hallo, {{ auth()->user()->name }}!</p>
         </div>
-        <form method="POST" action="{{ route('logout') }}">
-            @csrf
-            <button type="submit" class="bg-red-600 hover:bg-red-700 px-4 py-2 rounded transition">
-                Abmelden
-            </button>
-        </form>
+        <div class="flex items-center gap-4">
+            <a href="{{ route('profile.edit') }}" class="text-gray-300 hover:text-white transition">
+                Profil
+            </a>
+            <form method="POST" action="{{ route('logout') }}">
+                @csrf
+                <button type="submit" class="bg-red-600 hover:bg-red-700 px-4 py-2 rounded transition">
+                    Abmelden
+                </button>
+            </form>
+        </div>
     </div>
 </header>
 
