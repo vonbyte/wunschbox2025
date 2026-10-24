@@ -20,8 +20,8 @@ return new class extends Migration
         DB::table('wishes')
             ->whereNotNull('image')
             ->whereNull('image_thumbnail')
-            ->orderBy('id')
-            ->each(function ($wish) use ($imageService) {
+            // By id, not offset: updated rows drop out of the whereNull filter
+            ->eachById(function ($wish) use ($imageService) {
                 $thumbnailPath = $imageService->getThumbnailPath($wish->image);
 
                 if (Storage::disk('public')->exists($thumbnailPath)) {

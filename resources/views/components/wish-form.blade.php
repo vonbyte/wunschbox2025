@@ -40,12 +40,14 @@
                 Dein Name *
             </label>
             @php($selectedReceiver = old('receiver', $wish?->receiver ?? 'Sonia'))
+            {{-- Keep receivers outside the default list (e.g. an admin's name) selectable --}}
+            @php($receivers = array_values(array_unique(['Sonia', 'Tanja', $selectedReceiver])))
             <select
                 id="receiver"
                 name="receiver"
                 required
                 class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-christmas-red focus:border-transparent transition">
-                @foreach(['Sonia', 'Tanja'] as $receiver)
+                @foreach($receivers as $receiver)
                     <option value="{{ $receiver }}" @selected($selectedReceiver === $receiver)>{{ $receiver }}</option>
                 @endforeach
             </select>

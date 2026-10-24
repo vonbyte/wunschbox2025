@@ -77,10 +77,11 @@ class AdminController extends Controller
     public function updateSortNr(Request $request, Wish $wish)
     {
         $validated = $request->validate([
-            'sortnr' => 'required|string',
+            'sortnr' => ['required', 'regex:/^\d{1,3}$/'],
         ]);
 
-        $wish->update(['sortnr' => $validated['sortnr']]);
+        // sortnr is a string column, so pad it to keep the text order numeric
+        $wish->update(['sortnr' => str_pad($validated['sortnr'], 3, '0', STR_PAD_LEFT)]);
 
         return back()->with('success', 'Sortierung aktualisiert!');
     }

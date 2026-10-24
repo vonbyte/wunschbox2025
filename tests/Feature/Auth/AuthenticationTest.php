@@ -8,8 +8,8 @@ test('login screen can be rendered', function () {
     $response->assertStatus(200);
 });
 
-test('users can authenticate using the login screen', function () {
-    $user = User::factory()->create();
+test('admins can authenticate using the login screen', function () {
+    $user = User::factory()->create(['is_admin' => true]);
 
     $response = $this->post('/login', [
         'email' => $user->email,
@@ -18,6 +18,17 @@ test('users can authenticate using the login screen', function () {
 
     $this->assertAuthenticated();
     $response->assertRedirect(route('admin.index', absolute: false));
+});
+
+test('users without admin role can not log in', function () {
+    $user = User::factory()->create(['is_admin' => false]);
+
+    $this->post('/login', [
+        'email' => $user->email,
+        'password' => 'password',
+    ])->assertSessionHasErrors('email');
+
+    $this->assertGuest();
 });
 
 test('users can not authenticate with invalid password', function () {

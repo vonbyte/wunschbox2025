@@ -251,6 +251,9 @@
                                                 type="text"
                                                 name="sortnr"
                                                 value="{{ $wish->sortnr }}"
+                                                inputmode="numeric"
+                                                pattern="\d{1,3}"
+                                                maxlength="3"
                                                 class="w-14 px-2 py-1 text-sm border border-gray-300 rounded"
                                                 onchange="this.form.submit()">
                                         </form>

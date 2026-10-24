@@ -25,7 +25,7 @@ class StoreWishRequest extends FormRequest
             'title' => 'required|string|max:255',
             'receiver' => 'required|string',
             'description' => 'nullable|string',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:10000',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:10000',
             'example_links' => 'nullable',
         ];
     }
