@@ -17,7 +17,12 @@ class WishFactory extends Factory
     public function definition(): array
     {
         return [
-            //
+            'title' => fake()->words(3, true),
+            'description' => fake()->sentence(),
+            'receiver' => fake()->randomElement(['Sonia', 'Tanja']),
+            'is_public' => false,
+            'status' => 'idea',
+            'sortnr' => '000',
         ];
     }
 }

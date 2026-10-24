@@ -14,7 +14,7 @@ class AdminController extends Controller
 
     public function index(Request $request)
     {
-        $myWishes = Wish::where('is_public', true)->latest()->get();
+        $myWishes = Wish::sorted()->where('is_public', true)->get();
         $hasFilter = $request->has('filter');
 
         if ($hasFilter && in_array($request->filter, ['packed', 'unpacked', 'open','delivered'])) {

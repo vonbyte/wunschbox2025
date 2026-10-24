@@ -27,6 +27,7 @@ class Wish extends Model
         'title',
         'description',
         'image',
+        'image_thumbnail',
         'receiver',
         'example_links',
         'is_public',
@@ -83,11 +84,11 @@ class Wish extends Model
     }
 
     /**
-     * Scope: Order by sort_nr then created_at
+     * Scope: Order by sortnr then created_at
      */
     public function scopeSorted($query)
     {
-        return $query->orderBy('sort_nr', 'asc')->orderBy('created_at', 'desc');
+        return $query->orderBy('sortnr', 'asc')->orderBy('created_at', 'desc');
     }
 
     /**
@@ -102,14 +103,14 @@ class Wish extends Model
     public function scopePacked($query)
     {
         return $query->where('status', 'packed')
-            ->orderBy('sort_nr', 'asc')
+            ->orderBy('sortnr', 'asc')
             ->orderBy('created_at', 'desc');
     }
 
     public function scopeUnpacked($query)
     {
         return $query->where('status', 'unpacked')
-            ->orderBy('sort_nr', 'desc')
+            ->orderBy('sortnr', 'desc')
             ->orderBy('created_at', 'desc');
     }
 
@@ -118,9 +119,7 @@ class Wish extends Model
      */
     public function scopeOpen($query)
     {
-        return $query->where('status', 'open')
-            ->orWhere('status', 'idea')
-            ->orWhere('status', 'ordered')
+        return $query->whereIn('status', ['open', 'idea', 'ordered'])
             ->orderBy('created_at', 'desc');
     }
 

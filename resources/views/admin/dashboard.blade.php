@@ -243,11 +243,10 @@
                                               class="flex items-center">
                                             @csrf @method('PATCH')
                                             <input
-                                                type="number"
-                                                name="sort_nr"
-                                                value="{{ $wish->sort_nr }}"
+                                                type="text"
+                                                name="sortnr"
+                                                value="{{ $wish->sortnr }}"
                                                 class="w-14 px-2 py-1 text-sm border border-gray-300 rounded"
-                                                min="0"
                                                 onchange="this.form.submit()">
                                         </form>
                                     </td>

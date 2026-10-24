@@ -11,7 +11,7 @@ class WishlistController
 
     public function index()
     {
-        $wishes = Wish::where('is_public', true)->get();
+        $wishes = Wish::sorted()->where('is_public', true)->get();
         return view('wishlist', compact('wishes'));
     }
 
