@@ -1,13 +1,5 @@
 @props(['title', 'heading' => null])
 
-@php
-    $christmas = now()->setDate(now()->year, 12, 24)->startOfDay();
-    if (now()->startOfDay()->gt($christmas)) {
-        $christmas->addYear();
-    }
-    $daysToChristmas = (int) now()->startOfDay()->diffInDays($christmas);
-@endphp
-
 <!DOCTYPE html>
 <html lang="de">
 <head>
@@ -27,7 +19,7 @@
                 @isset($subtitle)
                     {{ $subtitle }} ·
                 @endisset
-                {{ $daysToChristmas === 0 ? 'Heute ist Heiligabend' : "noch {$daysToChristmas} ".($daysToChristmas === 1 ? 'Tag' : 'Tage').' bis Weihnachten' }}
+                <x-christmas-countdown />
             </p>
         </div>
         <nav class="flex flex-wrap items-center gap-4 text-sm font-bold text-pine-muted">

@@ -1,5 +1,11 @@
 <x-public-layout title="Wunschbox">
     <x-slot:header>
+        <p class="mb-2 inline-flex items-center gap-1.5 text-sm font-bold tracking-wide text-gold-bright">
+            <svg class="size-4" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                <path d="M12 2.5l2.9 6 6.6.9-4.8 4.6 1.2 6.5L12 17.4l-5.9 3.1 1.2-6.5L2.5 9.4l6.6-.9z"/>
+            </svg>
+            <x-christmas-countdown lead="Nur noch" />
+        </p>
         <h1 class="-rotate-2 font-hand text-6xl font-bold leading-none text-paper">Wunschbox</h1>
         <p class="mt-2 text-pine-muted">Schreib deinen Wunsch auf, wir werfen ihn in die Box.</p>
     </x-slot:header>

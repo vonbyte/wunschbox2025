@@ -123,3 +123,24 @@ test('the add form on the dashboard has no receiver choice', function () {
         ->assertOk()
         ->assertDontSee('name="receiver"', false);
 });
+
+test('wishbox counts down the days to christmas', function (string $today, string $text) {
+    $this->travelTo(Carbon\Carbon::parse($today));
+
+    $this->get(route('wishbox'))
+        ->assertOk()
+        ->assertSee($text);
+})->with([
+    'weeks before' => ['2026-10-27 18:00', 'Nur noch 58 Tage bis Weihnachten'],
+    'one day before' => ['2026-12-23 08:00', 'Nur noch 1 Tag bis Weihnachten'],
+    'christmas eve' => ['2026-12-24 20:00', 'Heute ist Heiligabend'],
+    'after christmas' => ['2026-12-26 10:00', 'Nur noch 363 Tage bis Weihnachten'],
+]);
+
+test('admin header shows the same countdown', function () {
+    $this->travelTo(Carbon\Carbon::parse('2026-12-20 12:00'));
+
+    $this->actingAs(User::factory()->admin()->create())
+        ->get(route('admin.index'))
+        ->assertSee('noch 4 Tage bis Weihnachten');
+});
