@@ -94,7 +94,6 @@
         @enderror
     </div>
 
-    <div class="space-y-6 lg:grid lg:grid-cols-2 lg:items-start lg:gap-10 lg:space-y-0">
     <!-- Image Upload (conditional) -->
     @if($showImage)
         <div x-data="{ preview: null, name: null }">
@@ -151,8 +150,6 @@
             @enderror
         </div>
     @endif
-
-    </div>
 
     <!-- Actions -->
     @if($isAdmin)
