@@ -7,7 +7,7 @@
             </svg>
             {{ auth()->check() ? 'Zurück zum Admin' : 'Zurück zum Wunschzettel' }}
         </a>
-        <h1 class="-rotate-1 font-hand text-5xl font-bold leading-none text-paper">{{ $wish->title }}</h1>
+        <h1 class="-rotate-1 font-hand text-5xl font-bold leading-none text-paper lg:text-7xl">{{ $wish->title }}</h1>
     </x-slot:header>
 
     <article>

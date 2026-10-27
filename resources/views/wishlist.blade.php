@@ -2,7 +2,7 @@
 
 <x-public-layout :title="$owner.'s Wunschzettel'">
     <x-slot:header>
-        <h1 class="-rotate-2 font-hand text-6xl font-bold leading-none text-paper">Mein Wunschzettel</h1>
+        <h1 class="-rotate-2 font-hand text-6xl font-bold leading-none text-paper lg:text-8xl">Mein Wunschzettel</h1>
     </x-slot:header>
 
     @if($wishes->isEmpty())
@@ -11,7 +11,7 @@
             <p class="mt-2 text-ink-muted">Schau später wieder vorbei.</p>
         </div>
     @else
-        <p class="mb-4 font-hand text-3xl text-pine">Lieber Santa, ich wünsche mir …</p>
+        <p class="mb-4 font-hand text-3xl text-pine lg:text-4xl">Lieber Santa, ich wünsche mir …</p>
 
         <ol>
             @foreach($wishes as $wish)

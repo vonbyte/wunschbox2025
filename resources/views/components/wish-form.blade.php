@@ -94,13 +94,14 @@
         @enderror
     </div>
 
+    <div class="space-y-6 lg:grid lg:grid-cols-2 lg:items-start lg:gap-10 lg:space-y-0">
     <!-- Image Upload (conditional) -->
     @if($showImage)
         <div x-data="{ preview: null, name: null }">
             <span class="{{ $label }}">Bild {!! $optional !!}</span>
             <label for="image" class="mt-2 flex cursor-pointer items-center gap-4 rounded-xl p-1 focus-within:outline-2 focus-within:outline-pine">
                 <span class="polaroid shrink-0">
-                    <span class="flex size-20 items-center justify-center overflow-hidden bg-pine-light">
+                    <span class="flex size-20 items-center justify-center overflow-hidden bg-pine-light {{ $isAdmin ? '' : 'lg:size-28' }}">
                         <template x-if="preview">
                             <img :src="preview" alt="" class="size-full object-cover">
                         </template>
@@ -150,6 +151,8 @@
             @enderror
         </div>
     @endif
+
+    </div>
 
     <!-- Actions -->
     @if($isAdmin)

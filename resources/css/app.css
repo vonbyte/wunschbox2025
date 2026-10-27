@@ -47,14 +47,35 @@
         background: repeating-linear-gradient(90deg, var(--color-berry) 0 8px, #fff 8px 14px);
     }
 
+    /* On desktop the page content lies as a note on a slightly darker desk */
+    .sheet {
+        @apply lg:relative lg:bg-paper lg:px-14 lg:py-12;
+    }
+    @media (width >= 64rem) {
+        .sheet {
+            box-shadow: 0 1px 2px rgb(43 42 51 / .06), 0 18px 40px -18px rgb(43 42 51 / .3);
+        }
+        .sheet::before {
+            content: '';
+            position: absolute;
+            top: -12px;
+            left: 50%;
+            width: 120px;
+            height: 26px;
+            background: rgb(229 238 231 / .85);
+            border: 1px solid rgb(30 91 60 / .15);
+            transform: translateX(-50%) rotate(-2deg);
+        }
+    }
+
     .label-caps {
         @apply block text-xs font-bold tracking-wider uppercase text-pine;
     }
 
     /* Text fields written on a line of paper */
     .field-line {
-        @apply w-full bg-transparent border-0 border-b-[1.5px] border-line px-0.5 pt-1 pb-1.5 text-lg text-ink transition;
-        @apply placeholder:font-hand placeholder:text-xl placeholder:text-ink-muted/70;
+        @apply w-full bg-transparent border-0 border-b-[1.5px] border-line px-0.5 pt-1 pb-1.5 text-lg text-ink transition lg:text-xl;
+        @apply placeholder:font-hand placeholder:text-xl placeholder:text-ink-muted/70 lg:placeholder:text-2xl;
         @apply focus:outline-none focus:border-pine;
     }
 
@@ -74,10 +95,10 @@
         transform: rotate(var(--tilt, 2deg));
     }
     .stamp-face {
-        @apply flex min-w-24 flex-col items-center bg-paper-dark px-4 py-2 text-center text-ink-muted;
+        @apply flex min-w-24 flex-col items-center bg-paper-dark px-4 py-2 text-center text-ink-muted lg:min-w-32 lg:px-6 lg:py-3;
     }
     .stamp-name {
-        @apply font-hand text-3xl leading-none font-bold;
+        @apply font-hand text-3xl leading-none font-bold lg:text-4xl;
     }
     .stamp:hover {
         @apply border-berry/60;
