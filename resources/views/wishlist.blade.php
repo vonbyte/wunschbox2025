@@ -2,7 +2,7 @@
 
 <x-public-layout :title="$owner.'s Wunschzettel'">
     <x-slot:header>
-        <h1 class="-rotate-2 font-hand text-6xl font-bold leading-none text-paper lg:text-8xl">Mein Wunschzettel</h1>
+        <h1 class="-rotate-2 font-hand text-6xl font-bold leading-none text-paper lg:text-7xl">Mein Wunschzettel</h1>
     </x-slot:header>
 
     @if($wishes->isEmpty())
