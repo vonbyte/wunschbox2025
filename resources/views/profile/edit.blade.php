@@ -1,23 +1,9 @@
-<!DOCTYPE html>
-<html lang="de">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Profil</title>
-    @vite('resources/css/app.css')
-</head>
-<body class="bg-gray-100">
-
-<header class="bg-gray-800 text-white shadow-lg">
-    <div class="container mx-auto px-4 py-4 flex justify-between items-center">
-        <h1 class="text-2xl font-bold">🎄 Profil</h1>
+<x-admin-layout title="Profil" class="space-y-8">
+    <x-slot:actions>
         <a href="{{ route('admin.index') }}" class="text-gray-300 hover:text-white transition">
             ← Zurück zum Admin
         </a>
-    </div>
-</header>
-
-<div class="container mx-auto px-4 py-8 space-y-8">
+    </x-slot:actions>
 
     <!-- Profile Information -->
     <div class="max-w-2xl mx-auto bg-white rounded-lg shadow-md p-8">
@@ -104,6 +90,4 @@
             </button>
         </form>
     </div>
-</div>
-</body>
-</html>
+</x-admin-layout>

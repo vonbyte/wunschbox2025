@@ -5,16 +5,9 @@ namespace App\Http\Requests;
 use App\Models\Wish;
 use Illuminate\Validation\Rule;
 
+// Access is checked by the admin middleware on all admin routes
 class AdminStoreWishRequest extends StoreWishRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     */
-    public function authorize(): bool
-    {
-        return auth()->user()->isAdmin();
-    }
-
     /**
      * Admins may keep the current receiver of an existing wish, even if it is not in the list.
      */

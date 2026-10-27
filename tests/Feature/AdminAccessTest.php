@@ -20,6 +20,12 @@ test('users without admin role cannot change or delete wishes', function () {
     $this->actingAs($user)->delete(route('admin.wishes.destroy', $wish))->assertForbidden();
     $this->actingAs($user)->patch(route('admin.wishes.update-status', $wish), ['status' => 'packed'])->assertForbidden();
     $this->actingAs($user)->patch(route('admin.wishes.toggle', $wish))->assertForbidden();
+    $this->actingAs($user)
+        ->patch(route('admin.wishes.update', $wish), ['title' => 'Gekapert', 'receiver' => 'Sonia'])
+        ->assertForbidden();
+    $this->actingAs($user)
+        ->post(route('admin.wishes.store'), ['title' => 'Gekapert', 'receiver' => 'Sonia'])
+        ->assertForbidden();
 
     expect($wish->fresh())
         ->not->toBeNull()

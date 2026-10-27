@@ -1,35 +1,21 @@
-<!DOCTYPE html>
-<html lang="de">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard</title>
-    @vite('resources/css/app.css')
-</head>
-<body class="bg-gray-100">
+<x-admin-layout title="Admin Dashboard" heading="Wishbox Admin">
+    <x-slot:subtitle>Hallo, {{ auth()->user()->name }}!</x-slot:subtitle>
 
-<!-- Header -->
-<header class="bg-gray-800 text-white shadow-lg">
-    <div class="container mx-auto px-4 py-4 flex justify-between items-center">
-        <div>
-            <h1 class="text-2xl font-bold">🎄 Wishbox Admin</h1>
-            <p class="text-gray-400 text-sm">Hallo, {{ auth()->user()->name }}!</p>
-        </div>
-        <div class="flex items-center gap-4">
-            <a href="{{ route('profile.edit') }}" class="text-gray-300 hover:text-white transition">
-                Profil
-            </a>
-            <form method="POST" action="{{ route('logout') }}">
-                @csrf
-                <button type="submit" class="bg-red-600 hover:bg-red-700 px-4 py-2 rounded transition">
-                    Abmelden
-                </button>
-            </form>
-        </div>
-    </div>
-</header>
+    <x-slot:actions>
+        <a href="{{ route('profile.edit') }}" class="text-gray-300 hover:text-white transition">
+            Profil
+        </a>
+        <form method="POST" action="{{ route('logout') }}">
+            @csrf
+            <button type="submit" class="bg-red-600 hover:bg-red-700 px-4 py-2 rounded transition">
+                Abmelden
+            </button>
+        </form>
+    </x-slot:actions>
 
-<div class="container mx-auto px-4 py-8">
+    <x-slot:scripts>
+        <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+    </x-slot:scripts>
 
     @if(session('success'))
         <div class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 mb-6 rounded">
@@ -332,10 +318,4 @@
             </div>
         </div>
     </div>
-
-</div>
-
-<script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
-
-</body>
-</html>
+</x-admin-layout>
