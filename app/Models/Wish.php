@@ -51,6 +51,42 @@ class Wish extends Model
     }
 
     /**
+     * The person whose wish note the public Wunschliste is. Only her public wishes may ever show there.
+     */
+    public static function owner(): string
+    {
+        return config('wishbox.owner');
+    }
+
+    /**
+     * Scope: Wishes on the owner's public wish note
+     */
+    public function scopeOnWishNote($query)
+    {
+        return $query->where('is_public', true)->where('receiver', self::owner());
+    }
+
+    /**
+     * Scope: Everything else, including public wishes of other receivers
+     */
+    public function scopeNotOnWishNote($query)
+    {
+        return $query->where(fn ($query) => $query
+            ->where('is_public', false)
+            ->orWhere('receiver', '!=', self::owner()));
+    }
+
+    public function isOnWishNote(): bool
+    {
+        return $this->is_public && $this->belongsToOwner();
+    }
+
+    public function belongsToOwner(): bool
+    {
+        return $this->receiver === self::owner();
+    }
+
+    /**
      * Get all available statuses
      */
     public static function getStatuses(): array

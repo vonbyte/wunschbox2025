@@ -10,6 +10,7 @@ class AdminStoreWishRequest extends StoreWishRequest
 {
     /**
      * Admins may keep the current receiver of an existing wish, even if it is not in the list.
+     * New admin wishes get no receiver from the request.
      */
     public function rules(): array
     {
@@ -17,7 +18,8 @@ class AdminStoreWishRequest extends StoreWishRequest
 
         return [
             ...parent::rules(),
-            'receiver' => ['required', Rule::in($receivers)],
+            // New admin wishes always belong to the wish note owner, see AdminController::store()
+            'receiver' => $this->route('wish') ? ['required', Rule::in($receivers)] : ['exclude'],
         ];
     }
 }

@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Models\Wish;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -24,5 +25,16 @@ class WishFactory extends Factory
             'status' => 'idea',
             'sortnr' => 0,
         ];
+    }
+
+    /**
+     * A public wish on the owner's wish note
+     */
+    public function onWishNote(): static
+    {
+        return $this->state(fn () => [
+            'is_public' => true,
+            'receiver' => Wish::owner(),
+        ]);
     }
 }
