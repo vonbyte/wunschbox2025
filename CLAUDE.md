@@ -4,7 +4,7 @@ Christmas wish box: guests submit wishes for Sonia or Tanja, admins manage them 
 
 ## Stack
 
-Laravel 13 on PHP 8.4, Pest 5, Vite 8 with Tailwind 4, Intervention Image 4 (GD). SQLite locally. Node ≥ 22.12 (`.nvmrc` = 24).
+Laravel 13 on PHP 8.4, Pest 5, Vite 8 with Tailwind 4 and Alpine 3, Intervention Image 4 (GD). SQLite locally. Node ≥ 22.12 (`.nvmrc` = 24).
 
 ## Commands
 
@@ -16,13 +16,14 @@ Laravel 13 on PHP 8.4, Pest 5, Vite 8 with Tailwind 4, Intervention Image 4 (GD)
 ## Areas
 
 - **Wunschbox** (`/`, `WishboxController`): public form, guest wishes are stored with `is_public = false`.
-- **Wunschliste** (`/wishlist`, `WishlistController`): public list of wishes with `is_public = true`, sorted by `sortnr`. Private wishes are visible only to admins.
+- **Wunschliste** (`/wishlist`, `WishlistController`): Tanja's public wish note, a numbered letter to the Christkind sorted by `sortnr`. Everything not on it is visible only to admins.
 - **Admin** (`/admin`, `AdminController`): guest wishes with status filters, quick edits (status, sort number, package number), own public wishes, profile at `/profile`.
 
 ## Rules that are easy to break
 
 - **Admins only.** There is no registration. Login accepts only `is_admin` users (`LoginRequest`), and every admin, profile and password route uses the `admin` middleware (`EnsureUserIsAdmin`). Keep new authenticated routes behind `['auth', 'admin']`, since a remember-me cookie skips the login check.
-- **Receivers** come from `Wish::RECEIVERS`. `StoreWishRequest` validates against it, `AdminStoreWishRequest` also allows the current receiver of an existing wish. The wish form builds its select from the same list.
+- **The public Wunschliste is only ever Tanja's wish note** (`config('wishbox.owner')`). Query it with `Wish::onWishNote()` (public and receiver = owner), never with `is_public` alone; guests get a 404 for anything else. Admin-added wishes always get the owner as receiver, and only the owner's wishes can be toggled public. No receiver labels in the public views.
+- **Receivers** come from `Wish::RECEIVERS`. `StoreWishRequest` validates against it, `AdminStoreWishRequest` also allows the current receiver of an existing wish. The wish form builds its receiver radios from the same list.
 - **`sortnr`** is an unsigned integer column cast to `int`. Order lists with `Wish::sorted()`.
 - **Statuses** are the `Wish::STATUS_*` constants; labels and badge colors live in `Wish::getStatuses()` and `status_color`.
 - **Images** go through `ImageService`: original max 1920×1080, thumbnail 400×300 stored as `image_thumbnail`. Build thumbnail paths only with `ImageService::getThumbnailPath()`. Migrations must not depend on app services.
@@ -30,7 +31,8 @@ Laravel 13 on PHP 8.4, Pest 5, Vite 8 with Tailwind 4, Intervention Image 4 (GD)
 
 ## Conventions
 
-- Admin pages use the `<x-admin-layout>` component (`title`, optional `heading`, slots `subtitle`, `actions`, `scripts`). The public pages don't share a layout yet.
+- Admin pages use `<x-admin-layout>` (`title`, optional `heading`, slots `subtitle`, `actions`, `scripts`); public pages use `<x-public-layout>` (`title`, slots `header`, `scripts`).
+- Design "Wunschzettel": tokens in `resources/css/app.css` (`pine`, `berry`, `seal`, `gold`, `paper`, `line`, `ink`), Caveat (`font-hand`) for headings and wish titles, Nunito for the rest, both self-hosted via Fontsource. Header deco is `<x-fairy-lights>`. Alpine comes from npm (`resources/js/app.js`), not a CDN.
 - Shared wish form: `<x-wish-form>`.
 - Validation messages shown to users are German; pass custom messages where Laravel's English defaults would show.
 - Every bugfix or feature gets a Pest feature test in `tests/Feature/`; use `User::factory()->admin()` for admin users and `Wish::factory()` for wishes.
