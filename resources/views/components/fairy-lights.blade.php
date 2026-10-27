@@ -2,8 +2,9 @@
 
 @php
     // Two copper wires with micro lights, computed in PHP so the SVG stays static markup.
-    // The wide viewBox is shown at its natural height and cropped to the screen width.
-    $width = 1600;
+    // The wide viewBox is shown at its natural height and cropped to the screen width,
+    // so it only scales up (and crops at the bottom) on screens wider than 2560px.
+    $width = 2560;
     $height = $size === 'sm' ? 34 : 54;
     $scale = $size === 'sm' ? 0.7 : 1;
 
@@ -27,7 +28,17 @@
         $lights[] = ['x' => $x, 'y' => round($back($x), 1), 'r' => 1.8, 'halo' => 5, 'color' => '#ffe9b0', 'delay' => ($x * 7 % 30) / 10];
     }
 
-    $stars = $size === 'sm' ? [] : [[92, 42, 6], [300, 46, 4.5], [468, 40, 7], [590, 46, 4], [760, 42, 5.5], [930, 46, 4], [1110, 40, 6.5], [1290, 45, 4.5], [1480, 42, 6]];
+    $stars = [];
+    if ($size !== 'sm') {
+        foreach ([[92, 6], [300, 4.5], [468, 7], [590, 4], [760, 5.5], [930, 4], [1110, 6.5], [1290, 4.5], [1480, 6]] as $i => [$x, $r]) {
+            // Repeat the pattern across the wide viewBox and keep every star inside the box
+            foreach ([0, 1600] as $offset) {
+                if ($x + $offset < $width) {
+                    $stars[] = [$x + $offset, $i % 2 ? 44 : 40, $r];
+                }
+            }
+        }
+    }
     $starPath = function (float $cx, float $cy, float $r) {
         $points = [];
         for ($k = 0; $k < 10; $k++) {
