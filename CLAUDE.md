@@ -16,7 +16,7 @@ Laravel 13 on PHP 8.4, Pest 5, Vite 8 with Tailwind 4 and Alpine 3, Intervention
 ## Areas
 
 - **Wunschbox** (`/`, `WishboxController`): public form, guest wishes are stored with `is_public = false`.
-- **Wunschliste** (`/wishlist`, `WishlistController`): Tanja's public wish note, a numbered letter to the Christkind sorted by `sortnr`. Everything not on it is visible only to admins.
+- **Wunschliste** (`/wishlist`, `WishlistController`): Tanja's public wish note, a numbered letter to Santa sorted by `sortnr`. Everything not on it is visible only to admins.
 - **Admin** (`/admin`, `AdminController`): guest wishes with status filters, quick edits (status, sort number, package number), own public wishes, profile at `/profile`.
 
 ## Rules that are easy to break

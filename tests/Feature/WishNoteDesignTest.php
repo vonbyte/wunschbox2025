@@ -5,7 +5,9 @@ use App\Models\Wish;
 use Illuminate\Support\Facades\Storage;
 
 test('wishbox offers every receiver as a radio button', function () {
-    $response = $this->get(route('wishbox'))->assertOk();
+    $response = $this->get(route('wishbox'))
+        ->assertOk()
+        ->assertSee('Santa hat die Rentiere schon vorgewarnt.');
 
     foreach (Wish::RECEIVERS as $receiver) {
         $response->assertSee('type="radio" name="receiver" value="'.$receiver.'"', false);
@@ -23,7 +25,7 @@ test('wish note lists public wishes numbered by sort number and signed by the ow
     $this->get(route('wishlist'))
         ->assertOk()
         ->assertSee('<title>Tanjas Wunschzettel</title>', false)
-        ->assertSeeInOrder(['Liebes Christkind', '1.', 'Kopfhörer', '2.', 'Konzertkarten', 'Deine Tanja'])
+        ->assertSeeInOrder(['Lieber Santa', '1.', 'Kopfhörer', '2.', 'Konzertkarten', 'Deine Tanja'])
         ->assertDontSee('Geheimer Gastwunsch');
 });
 
@@ -33,7 +35,7 @@ test('empty wish note invites to come back later', function () {
     $this->get(route('wishlist'))
         ->assertOk()
         ->assertSee('Der Wunschzettel ist noch leer.')
-        ->assertDontSee('Liebes Christkind');
+        ->assertDontSee('Lieber Santa');
 });
 
 test('wish note shows the thumbnail and the number of links', function () {

@@ -7,7 +7,7 @@
             <x-christmas-countdown lead="Nur noch" />
         </p>
         <h1 class="-rotate-2 font-hand text-6xl font-bold leading-none text-paper">Wunschbox</h1>
-        <p class="mt-2 text-pine-muted">Schreib deinen Wunsch auf, wir werfen ihn in die Box.</p>
+        <p class="mt-2 text-pine-muted">Santa hat die Rentiere schon vorgewarnt.</p>
     </x-slot:header>
 
     @if(session('success'))
