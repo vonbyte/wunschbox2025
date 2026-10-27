@@ -1,9 +1,11 @@
 <x-admin-layout title="Wunsch bearbeiten">
-    <div class="max-w-2xl mx-auto bg-white rounded-lg shadow-md p-8">
+    <div class="card mx-auto max-w-2xl p-6 md:p-8">
+        <h1 class="mb-6 font-hand text-4xl font-bold leading-none text-berry">Wunsch bearbeiten</h1>
         <x-wish-form
             :action="route('admin.wishes.update', $wish)"
             method="PATCH"
             :wish="$wish"
+            variant="admin"
             submit-text="Speichern"
             :cancel-url="route('admin.index')"
         />

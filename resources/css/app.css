@@ -1,3 +1,5 @@
+@import '@fontsource-variable/caveat';
+@import '@fontsource-variable/nunito';
 @import 'tailwindcss';
 
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
@@ -5,59 +7,190 @@
 @source '../**/*.blade.php';
 @source '../**/*.js';
 
-/* Christmas Color Palette */
-@theme inline {
-    --color-test: #a1c423;
-    --color-christmas-red: #c41e3a;
-    --color-christmas-red-dark: #a01628;
-    --color-christmas-green: #165b33;
-    --color-christmas-green-light: #2d8659;
-    --color-christmas-gold: #ffd700;
+/* Wunschzettel palette and fonts */
+@theme {
+    --color-pine: #1e5b3c;
+    --color-pine-dark: #164a30;
+    --color-pine-light: #e5eee7;
+    --color-pine-muted: #cfe2d4;
+    --color-berry: #c0312b;
+    --color-berry-light: #f7dedb;
+    --color-seal: #a8231e;
+    --color-gold: #d4a017;
+    --color-gold-light: #f5e9c8;
+    --color-copper: #c58a4a;
+    --color-paper: #fbf6ea;
+    --color-paper-dark: #efe7d4;
+    --color-line: #e2d6bb;
+    --color-ink: #2b2a33;
+    --color-ink-muted: #7d7564;
+
+    --font-sans: 'Nunito Variable', ui-sans-serif, system-ui, sans-serif;
+    --font-hand: 'Caveat Variable', cursive;
+}
+
+@layer base {
+    [x-cloak] {
+        display: none !important;
+    }
+
+    body {
+        @apply bg-paper text-ink font-sans antialiased;
+    }
 }
 
 @layer components {
-    .snowflake {
-        position  : fixed;
-        top       : -10px;
-        z-index   : 9999;
-        color     : white;
-        font-size : 2em;
-        animation : fall linear infinite;
+    /* Red and white baker's twine under the header */
+    .twine {
+        height: 4px;
+        background: repeating-linear-gradient(90deg, var(--color-berry) 0 8px, #fff 8px 14px);
     }
 
-    @keyframes fall {
-        to { transform : translateY(100vh);}
+    .label-caps {
+        @apply block text-xs font-bold tracking-wider uppercase text-pine;
+    }
+
+    /* Text fields written on a line of paper */
+    .field-line {
+        @apply w-full bg-transparent border-0 border-b-[1.5px] border-line px-0.5 pt-1 pb-1.5 text-lg text-ink transition;
+        @apply placeholder:font-hand placeholder:text-xl placeholder:text-ink-muted/70;
+        @apply focus:outline-none focus:border-pine;
+    }
+
+    /* Plain boxed fields for the admin */
+    .field-box {
+        @apply w-full rounded-lg border border-line bg-white px-3 py-2 text-ink transition;
+        @apply focus:outline-none focus:border-pine focus:ring-2 focus:ring-pine/20;
+    }
+
+    .field-error {
+        @apply mt-1 text-sm font-semibold text-berry;
+    }
+
+    /* Receiver picker: a stamp with perforated edge around a radio */
+    .stamp {
+        @apply relative inline-block cursor-pointer border-2 border-dashed border-line bg-white p-1.5 transition;
+        transform: rotate(var(--tilt, 2deg));
+    }
+    .stamp-face {
+        @apply flex min-w-24 flex-col items-center bg-paper-dark px-4 py-2 text-center text-ink-muted;
+    }
+    .stamp-name {
+        @apply font-hand text-3xl leading-none font-bold;
+    }
+    .stamp:hover {
+        @apply border-berry/60;
+    }
+    .stamp:has(input:checked) {
+        @apply border-berry;
+    }
+    .stamp:has(input:checked) .stamp-face {
+        @apply bg-berry-light text-berry;
+    }
+    .stamp:has(input:focus-visible) {
+        @apply outline-2 outline-offset-4 outline-pine;
+    }
+
+    /* Compact receiver pills in the admin form */
+    .pill-choice {
+        @apply inline-flex cursor-pointer items-center rounded-full border border-line bg-white px-4 py-1.5 text-sm font-bold text-ink-muted transition;
+    }
+    .pill-choice:has(input:checked) {
+        @apply border-pine bg-pine text-white;
+    }
+    .pill-choice:has(input:focus-visible) {
+        @apply outline-2 outline-offset-2 outline-pine;
+    }
+
+    .polaroid {
+        @apply relative inline-block border border-line bg-white p-1 pb-3;
+        transform: rotate(var(--tilt, -3deg));
+    }
+
+    /* Wax seal submit button */
+    .seal {
+        @apply inline-flex items-center gap-3 rounded-full transition;
+    }
+    .seal-disc {
+        @apply flex size-16 items-center justify-center rounded-full border-[3px] border-berry bg-seal text-gold-light transition;
+        transform: rotate(-8deg);
+    }
+    .seal:hover .seal-disc {
+        transform: rotate(4deg) scale(1.05);
+    }
+    .seal:focus-visible {
+        @apply outline-2 outline-offset-4 outline-pine;
+    }
+
+    .btn {
+        @apply inline-flex items-center justify-center gap-1.5 rounded-lg border px-4 py-2 text-sm font-bold transition;
+        @apply focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-pine;
+    }
+    .btn-primary {
+        @apply border-pine bg-pine text-white hover:bg-pine-dark;
+    }
+    .btn-outline {
+        @apply border-pine bg-white text-pine hover:bg-pine-light;
+    }
+    .btn-ghost {
+        @apply border-line bg-white text-ink hover:border-ink-muted;
+    }
+    .btn-danger {
+        @apply border-berry/30 bg-white text-seal hover:bg-berry-light;
+    }
+
+    .card {
+        @apply rounded-2xl border border-line bg-white;
+    }
+
+    .icon-btn {
+        @apply inline-flex size-8 items-center justify-center rounded-lg text-ink-muted transition hover:bg-paper hover:text-ink;
+        @apply focus-visible:outline-2 focus-visible:outline-pine;
+    }
+
+    .flash {
+        @apply mb-6 rounded-xl border border-pine/30 bg-pine-light px-4 py-3 font-bold text-pine;
+    }
+    .flash-error {
+        @apply mb-6 rounded-xl border border-berry/30 bg-berry-light px-4 py-3 font-bold text-seal;
+    }
+
+    /* Micro lights on the copper wire */
+    .fairy-glow {
+        animation: twinkle 3.2s ease-in-out infinite;
+    }
+
+    @keyframes twinkle {
+        0%, 100% { opacity: .95; }
+        50% { opacity: .4; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .fairy-glow { animation: none; }
+        .seal-disc, .stamp { transition: none; }
     }
 }
 
-@layer utilities {
-    .line-clamp-3 {
-        display: -webkit-box;
-        -webkit-line-clamp: 3;
-        -webkit-box-orient: vertical;
-        overflow: hidden;
-    }
-}
-
-.state-green {
-    color: var(--color-green-800);
-    background-color: var(--color-green-100);
-}
+/* Status chips, colors from Wish::status_color */
 .state-gray {
-    color: var(--color-gray-800);
+    color: var(--color-gray-700);
     background-color: var(--color-gray-100);
-}
-.state-yellow {
-    color: var(--color-yellow-800);
-    background-color: var(--color-yellow-100);
 }
 .state-blue {
     color: var(--color-blue-800);
     background-color: var(--color-blue-100);
 }
+.state-yellow {
+    color: var(--color-yellow-800);
+    background-color: var(--color-yellow-100);
+}
 .state-orange {
     color: var(--color-orange-800);
     background-color: var(--color-orange-100);
+}
+.state-green {
+    color: var(--color-green-800);
+    background-color: var(--color-green-100);
 }
 .state-purple {
     color: var(--color-purple-800);

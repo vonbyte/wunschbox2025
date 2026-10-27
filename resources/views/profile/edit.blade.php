@@ -1,18 +1,12 @@
 <x-admin-layout title="Profil" class="space-y-8">
-    <x-slot:actions>
-        <a href="{{ route('admin.index') }}" class="text-gray-300 hover:text-white transition">
-            ← Zurück zum Admin
-        </a>
-    </x-slot:actions>
-
     <!-- Profile Information -->
-    <div class="max-w-2xl mx-auto bg-white rounded-lg shadow-md p-8">
-        <h2 class="text-xl font-bold text-gray-800 mb-4 border-b-2 border-christmas-red pb-2">
+    <div class="card mx-auto max-w-2xl p-6 md:p-8">
+        <h2 class="mb-6 font-hand text-4xl font-bold leading-none text-berry">
             Name und E-Mail
         </h2>
 
         @if(session('status') === 'profile-updated')
-            <div class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 mb-6 rounded">
+            <div class="flash" role="status">
                 Profil gespeichert!
             </div>
         @endif
@@ -21,38 +15,38 @@
             @csrf @method('PATCH')
 
             <div>
-                <label for="name" class="block text-sm font-medium text-gray-700 mb-2">Name *</label>
+                <label for="name" class="mb-1 block text-sm font-bold text-ink">Name *</label>
                 <input type="text" id="name" name="name" value="{{ old('name', $user->name) }}" required autocomplete="name"
-                       class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-christmas-red focus:border-transparent transition">
+                       class="field-box">
                 @error('name')
-                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                <p class="field-error">{{ $message }}</p>
                 @enderror
             </div>
 
             <div>
-                <label for="email" class="block text-sm font-medium text-gray-700 mb-2">E-Mail *</label>
+                <label for="email" class="mb-1 block text-sm font-bold text-ink">E-Mail *</label>
                 <input type="email" id="email" name="email" value="{{ old('email', $user->email) }}" required autocomplete="username"
-                       class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-christmas-red focus:border-transparent transition">
+                       class="field-box">
                 @error('email')
-                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                <p class="field-error">{{ $message }}</p>
                 @enderror
             </div>
 
             <button type="submit"
-                    class="bg-christmas-red hover:bg-red-700 text-white font-bold py-3 px-6 rounded-lg transition">
+                    class="btn btn-primary">
                 Speichern
             </button>
         </form>
     </div>
 
     <!-- Password -->
-    <div class="max-w-2xl mx-auto bg-white rounded-lg shadow-md p-8">
-        <h2 class="text-xl font-bold text-gray-800 mb-4 border-b-2 border-christmas-red pb-2">
+    <div class="card mx-auto max-w-2xl p-6 md:p-8">
+        <h2 class="mb-6 font-hand text-4xl font-bold leading-none text-berry">
             Passwort ändern
         </h2>
 
         @if(session('status') === 'password-updated')
-            <div class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 mb-6 rounded">
+            <div class="flash" role="status">
                 Passwort geändert!
             </div>
         @endif
@@ -61,31 +55,31 @@
             @csrf @method('PUT')
 
             <div>
-                <label for="current_password" class="block text-sm font-medium text-gray-700 mb-2">Aktuelles Passwort *</label>
+                <label for="current_password" class="mb-1 block text-sm font-bold text-ink">Aktuelles Passwort *</label>
                 <input type="password" id="current_password" name="current_password" required autocomplete="current-password"
-                       class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-christmas-red focus:border-transparent transition">
+                       class="field-box">
                 @error('current_password', 'updatePassword')
-                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                <p class="field-error">{{ $message }}</p>
                 @enderror
             </div>
 
             <div>
-                <label for="password" class="block text-sm font-medium text-gray-700 mb-2">Neues Passwort *</label>
+                <label for="password" class="mb-1 block text-sm font-bold text-ink">Neues Passwort *</label>
                 <input type="password" id="password" name="password" required autocomplete="new-password"
-                       class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-christmas-red focus:border-transparent transition">
+                       class="field-box">
                 @error('password', 'updatePassword')
-                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                <p class="field-error">{{ $message }}</p>
                 @enderror
             </div>
 
             <div>
-                <label for="password_confirmation" class="block text-sm font-medium text-gray-700 mb-2">Neues Passwort bestätigen *</label>
+                <label for="password_confirmation" class="mb-1 block text-sm font-bold text-ink">Neues Passwort bestätigen *</label>
                 <input type="password" id="password_confirmation" name="password_confirmation" required autocomplete="new-password"
-                       class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-christmas-red focus:border-transparent transition">
+                       class="field-box">
             </div>
 
             <button type="submit"
-                    class="bg-christmas-red hover:bg-red-700 text-white font-bold py-3 px-6 rounded-lg transition">
+                    class="btn btn-primary">
                 Passwort ändern
             </button>
         </form>
