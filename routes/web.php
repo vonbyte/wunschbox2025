@@ -16,7 +16,7 @@ Route::get('/wishlist/{wish}',
     [App\Http\Controllers\WishlistController::class, 'show'])->name('wish.show');
 
 // Admin Routes
-Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
+Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/', [App\Http\Controllers\AdminController::class, 'index'])->name('index');
     Route::post('/wishes', [App\Http\Controllers\AdminController::class, 'store'])->name('wishes.store');
     Route::get('/wishes/{wish}', [App\Http\Controllers\AdminController::class, 'edit'])->name('wishes.edit');

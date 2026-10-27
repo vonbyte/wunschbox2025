@@ -39,15 +39,17 @@
             <label for="receiver" class="block text-sm font-medium text-gray-700 mb-2">
                 Dein Name *
             </label>
+            @php($selectedReceiver = old('receiver', $wish?->receiver ?? \App\Models\Wish::RECEIVERS[0]))
+            {{-- Keep a stored receiver outside the list (e.g. an admin's name) selectable --}}
+            @php($receivers = array_values(array_unique(array_filter([...\App\Models\Wish::RECEIVERS, $wish?->receiver]))))
             <select
-                type="text"
                 id="receiver"
                 name="receiver"
-                value="{{ old('receiver', $wish?->receiver) }}"
                 required
                 class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-christmas-red focus:border-transparent transition">
-                <option selected="selected" value="Sonia">Sonia</option>
-                <option value="Tanja">Tanja</option>
+                @foreach($receivers as $receiver)
+                    <option value="{{ $receiver }}" @selected($selectedReceiver === $receiver)>{{ $receiver }}</option>
+                @endforeach
             </select>
             @error('receiver')
             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>

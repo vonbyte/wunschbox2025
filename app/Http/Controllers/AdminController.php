@@ -14,7 +14,7 @@ class AdminController extends Controller
 
     public function index(Request $request)
     {
-        $myWishes = Wish::where('is_public', true)->latest()->get();
+        $myWishes = Wish::sorted()->where('is_public', true)->get();
         $hasFilter = $request->has('filter');
 
         if ($hasFilter && in_array($request->filter, ['packed', 'unpacked', 'open','delivered'])) {
@@ -37,7 +37,6 @@ class AdminController extends Controller
         $wishData = $this->wishService->processWishData($request);
 
         $wishData['is_public'] = true;
-        $wishData['receiver'] = auth()->user()->name;
         $wishData['status'] = Wish::STATUS_IDEA;
 
         Wish::create($wishData);
@@ -77,7 +76,9 @@ class AdminController extends Controller
     public function updateSortNr(Request $request, Wish $wish)
     {
         $validated = $request->validate([
-            'sortnr' => 'required|string',
+            'sortnr' => 'required|integer|min:0',
+        ], [
+            'sortnr' => 'Die Sortierung muss eine ganze Zahl ab 0 sein.',
         ]);
 
         $wish->update(['sortnr' => $validated['sortnr']]);
@@ -99,7 +100,9 @@ class AdminController extends Controller
 
     public function updatePackageNr(Request $request, Wish $wish) {
         $validated = $request->validate([
-            'package_nr' => 'required|integer',
+            'package_nr' => 'required|integer|min:0',
+        ], [
+            'package_nr' => 'Die Päckchen-Nummer muss eine ganze Zahl ab 0 sein.',
         ]);
 
         $wish->update(['package_nr' => $validated['package_nr']]);

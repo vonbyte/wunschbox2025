@@ -2,7 +2,9 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Wish;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class StoreWishRequest extends FormRequest
 {
@@ -23,9 +25,9 @@ class StoreWishRequest extends FormRequest
     {
         return [
             'title' => 'required|string|max:255',
-            'receiver' => 'required|string',
+            'receiver' => ['required', Rule::in(Wish::RECEIVERS)],
             'description' => 'nullable|string',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:10000',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:10000',
             'example_links' => 'nullable',
         ];
     }

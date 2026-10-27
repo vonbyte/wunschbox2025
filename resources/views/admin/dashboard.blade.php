@@ -1,34 +1,31 @@
-<!DOCTYPE html>
-<html lang="de">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard</title>
-    @vite('resources/css/app.css')
-</head>
-<body class="bg-gray-100">
+<x-admin-layout title="Admin Dashboard" heading="Wishbox Admin">
+    <x-slot:subtitle>Hallo, {{ auth()->user()->name }}!</x-slot:subtitle>
 
-<!-- Header -->
-<header class="bg-gray-800 text-white shadow-lg">
-    <div class="container mx-auto px-4 py-4 flex justify-between items-center">
-        <div>
-            <h1 class="text-2xl font-bold">🎄 Wishbox Admin</h1>
-            <p class="text-gray-400 text-sm">Hallo, {{ auth()->user()->name }}!</p>
-        </div>
+    <x-slot:actions>
+        <a href="{{ route('profile.edit') }}" class="text-gray-300 hover:text-white transition">
+            Profil
+        </a>
         <form method="POST" action="{{ route('logout') }}">
             @csrf
             <button type="submit" class="bg-red-600 hover:bg-red-700 px-4 py-2 rounded transition">
                 Abmelden
             </button>
         </form>
-    </div>
-</header>
+    </x-slot:actions>
 
-<div class="container mx-auto px-4 py-8">
+    <x-slot:scripts>
+        <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+    </x-slot:scripts>
 
     @if(session('success'))
         <div class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 mb-6 rounded">
             {{ session('success') }}
+        </div>
+    @endif
+
+    @if($errors->any())
+        <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-6 rounded">
+            Nicht gespeichert: {{ $errors->first() }}
         </div>
     @endif
 
@@ -92,11 +89,14 @@
                                       class="flex items-center">
                                     @csrf @method('PATCH')
                                     <input
-                                        type="text"
+                                        type="number"
                                         name="package_nr"
                                         value="{{ $wish->package_nr }}"
+                                        min="0"
+                                        step="1"
+                                        required
                                         class="w-14 px-2 py-1 text-sm border border-gray-300 rounded"
-                                        onchange="this.form.submit()">
+                                        onchange="this.form.requestSubmit()">
                                 </form>
                             </td>
                             <!-- Sort Nr -->
@@ -105,11 +105,14 @@
                                       class="flex items-center">
                                     @csrf @method('PATCH')
                                     <input
-                                        type="text"
+                                        type="number"
                                         name="sortnr"
                                         value="{{ $wish->sortnr }}"
+                                        min="0"
+                                        step="1"
+                                        required
                                         class="w-14 px-2 py-1 text-sm border border-gray-300 rounded"
-                                        onchange="this.form.submit()">
+                                        onchange="this.form.requestSubmit()">
                                 </form>
                             </td>
 
@@ -244,11 +247,13 @@
                                             @csrf @method('PATCH')
                                             <input
                                                 type="number"
-                                                name="sort_nr"
-                                                value="{{ $wish->sort_nr }}"
-                                                class="w-14 px-2 py-1 text-sm border border-gray-300 rounded"
+                                                name="sortnr"
+                                                value="{{ $wish->sortnr }}"
                                                 min="0"
-                                                onchange="this.form.submit()">
+                                                step="1"
+                                                required
+                                                class="w-14 px-2 py-1 text-sm border border-gray-300 rounded"
+                                                onchange="this.form.requestSubmit()">
                                         </form>
                                     </td>
 
@@ -313,10 +318,4 @@
             </div>
         </div>
     </div>
-
-</div>
-
-<script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
-
-</body>
-</html>
+</x-admin-layout>

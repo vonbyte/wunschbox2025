@@ -27,7 +27,7 @@ class ImageService
         $fullPath = Storage::disk('public')->path($originalPath);
 
         // Resize original if too large
-        $image = $this->imageManager->read($fullPath);
+        $image = $this->imageManager->decodePath($fullPath);
 
         // Max dimensions for original: 1920x1080
         if ($image->width() > 1920 || $image->height() > 1080) {
@@ -39,12 +39,10 @@ class ImageService
         }
 
         // Create thumbnail (400x300)
-        $thumbnail = $this->imageManager->read($fullPath);
+        $thumbnail = $this->imageManager->decodePath($fullPath);
         $thumbnail->cover(400, 300); // Crop to exact size
 
-        // Generate thumbnail path
-        $pathInfo = pathinfo($originalPath);
-        $thumbnailPath = $pathInfo['dirname'] . '/' . $pathInfo['filename'] . '_thumb.' . $pathInfo['extension'];
+        $thumbnailPath = $this->getThumbnailPath($originalPath);
 
         Storage::disk('public')->put(
             $thumbnailPath,
@@ -70,9 +68,7 @@ class ImageService
         Storage::disk('public')->delete($imagePath);
 
         // Delete thumbnail
-        $pathInfo = pathinfo($imagePath);
-        $thumbnailPath = $pathInfo['dirname'] . '/' . $pathInfo['filename'] . '_thumb.' . $pathInfo['extension'];
-        Storage::disk('public')->delete($thumbnailPath);
+        Storage::disk('public')->delete($this->getThumbnailPath($imagePath));
     }
 
     /**
