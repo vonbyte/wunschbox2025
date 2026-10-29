@@ -183,3 +183,13 @@ test('edit form errors stay in the default bag', function () {
         ->patch(route('admin.wishes.update', $wish), ['title' => '', 'receiver' => $wish->receiver])
         ->assertSessionHasErrors('title');
 });
+
+test('the fairy light SVGs are up to date with their generator', function () {
+    $fairyLights = new App\Services\FairyLightsService;
+
+    foreach (App\Services\FairyLightsService::SIZES as $size) {
+        expect(file_get_contents(App\Services\FairyLightsService::path($size)))->toBe($fairyLights->svg($size));
+    }
+
+    $this->get(route('wishbox'))->assertSee('class="fairy-lights"', false);
+});

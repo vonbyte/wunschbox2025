@@ -32,7 +32,7 @@ Laravel 13 on PHP 8.4, Pest 5, Vite 8 with Tailwind 4 and Alpine 3, Intervention
 ## Conventions
 
 - Admin pages use `<x-admin-layout>` (`title`, optional `heading`, slots `subtitle`, `actions`, `scripts`); public pages use `<x-public-layout>` (`title`, slots `header`, `scripts`).
-- Design "Wunschzettel": tokens in `resources/css/app.css` (`pine`, `berry`, `seal`, `gold`, `paper`, `line`, `ink`), Caveat (`font-hand`) for headings and wish titles, Nunito for the rest, both self-hosted via Fontsource. Header deco is `<x-fairy-lights>`. Alpine comes from npm (`resources/js/app.js`), not a CDN.
+- Design "Wunschzettel": tokens in `resources/css/app.css` (`pine`, `berry`, `seal`, `gold`, `paper`, `line`, `ink`), Caveat (`font-hand`) for headings and wish titles, Nunito for the rest, both self-hosted via Fontsource. Header deco is `<x-fairy-lights>`, a static SVG in `resources/images` built by `php artisan wishbox:fairy-lights`. Alpine comes from npm (`resources/js/app.js`), not a CDN.
 - Shared wish form: `<x-wish-form>`.
 - Validation messages shown to users are German; pass custom messages where Laravel's English defaults would show.
 - Every bugfix or feature gets a Pest feature test in `tests/Feature/`; use `User::factory()->admin()` for admin users and `Wish::factory()` for wishes.

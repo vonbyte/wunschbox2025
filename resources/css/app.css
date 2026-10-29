@@ -177,18 +177,18 @@
         @apply mb-6 rounded-xl border border-berry/30 bg-berry-light px-4 py-3 font-bold text-seal;
     }
 
-    /* Micro lights on the copper wire */
-    .fairy-glow {
-        animation: twinkle 3.2s ease-in-out infinite;
+    /* Copper wire with micro lights, cropped to the screen width like preserveAspectRatio="xMidYMin slice" */
+    .fairy-lights {
+        height: 54px;
+        background: url('../images/fairy-lights.svg') center top / cover no-repeat;
     }
 
-    @keyframes twinkle {
-        0%, 100% { opacity: .95; }
-        50% { opacity: .4; }
+    .fairy-lights-sm {
+        height: 34px;
+        background-image: url('../images/fairy-lights-sm.svg');
     }
 
     @media (prefers-reduced-motion: reduce) {
-        .fairy-glow { animation: none; }
         .seal-disc, .stamp { transition: none; }
     }
 }
