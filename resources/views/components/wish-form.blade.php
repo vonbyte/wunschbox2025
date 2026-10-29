@@ -125,7 +125,7 @@
                     name="image"
                     accept="image/*"
                     class="sr-only"
-                    @change="const file = $event.target.files[0]; preview = file ? URL.createObjectURL(file) : null; name = file?.name ?? null">
+                    @change="const file = $event.target.files[0]; if (preview) URL.revokeObjectURL(preview); preview = file ? URL.createObjectURL(file) : null; name = file?.name ?? null">
             </label>
             @error('image', $errorBag)
             <p class="field-error">{{ $message }}</p>
