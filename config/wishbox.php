@@ -8,4 +8,10 @@ return [
     */
     'owner' => env('WISHBOX_OWNER', 'Tanja'),
 
+    /*
+    | Local time of the family, for the Christmas countdown. The app itself
+    | stays on UTC, so stored timestamps don't change.
+    */
+    'timezone' => env('WISHBOX_TIMEZONE', 'Europe/Zurich'),
+
 ];

@@ -146,3 +146,13 @@ test('admin header shows the same countdown', function () {
         ->get(route('admin.index'))
         ->assertSee('noch 4 Tage bis Weihnachten');
 });
+
+test('countdown follows the local time, not UTC', function () {
+    config(['wishbox.timezone' => 'Europe/Zurich']);
+    // 23:30 UTC is already half past midnight on Christmas Eve in Zurich
+    $this->travelTo(Carbon\Carbon::parse('2026-12-23 23:30', 'UTC'));
+
+    $this->get(route('wishbox'))
+        ->assertOk()
+        ->assertSee('Heute ist Heiligabend');
+});

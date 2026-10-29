@@ -1,7 +1,7 @@
 @props(['lead' => 'noch'])
 
 @php
-    $today = now()->startOfDay();
+    $today = now(config('wishbox.timezone'))->startOfDay();
     $christmas = $today->copy()->setDate($today->year, 12, 24);
     if ($today->gt($christmas)) {
         $christmas->addYear();
