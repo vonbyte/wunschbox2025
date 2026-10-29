@@ -1,4 +1,4 @@
-@php($owner = config('wishbox.owner'))
+@php($owner = \App\Models\Wish::owner())
 
 <x-public-layout :title="$owner.'s Wunschzettel'">
     <x-slot:header>
@@ -38,12 +38,7 @@
                             @endif
                         </span>
                         @if($wish->image)
-                            <span class="polaroid shrink-0" style="--tilt: {{ $loop->odd ? '4deg' : '-3deg' }}">
-                                <img src="{{ Storage::url($wish->image_thumbnail ?? $wish->image) }}"
-                                     alt=""
-                                     class="h-12 w-14 object-cover"
-                                     loading="lazy">
-                            </span>
+                            <x-wish-thumb :wish="$wish" :tilt="$loop->odd ? '4deg' : '-3deg'" size="h-12 w-14" class="shrink-0" />
                         @endif
                     </a>
                 </li>

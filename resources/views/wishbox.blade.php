@@ -29,7 +29,7 @@
 
     <p class="mt-10 text-center">
         <a href="{{ route('wishlist') }}" class="font-bold text-pine underline underline-offset-4 hover:text-pine-dark">
-            {{ config('wishbox.owner') }}s Wunschzettel ansehen
+            {{ \App\Models\Wish::owner() }}s Wunschzettel ansehen
         </a>
     </p>
 </x-public-layout>
