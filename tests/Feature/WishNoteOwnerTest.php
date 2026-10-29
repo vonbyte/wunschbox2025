@@ -79,3 +79,36 @@ test('public admin wishes with an admin name as receiver move to the owner', fun
         ->and($privateWish->fresh()->receiver)->toBe('Max Muster')
         ->and($soniasWish->fresh()->receiver)->toBe('Sonia');
 });
+
+test('wishes on the wish note keep the owner as receiver when edited', function () {
+    config(['wishbox.owner' => 'Tanja']);
+    $admin = User::factory()->admin()->create();
+    $wish = Wish::factory()->onWishNote()->create(['title' => 'Kopfhörer']);
+
+    $this->actingAs($admin)
+        ->get(route('admin.wishes.edit', $wish))
+        ->assertOk()
+        ->assertDontSee('name="receiver"', false);
+
+    $this->actingAs($admin)
+        ->patch(route('admin.wishes.update', $wish), ['title' => 'Kopfhörer', 'receiver' => 'Sonia'])
+        ->assertSessionHasNoErrors();
+
+    expect($wish->fresh()->isOnWishNote())->toBeTrue();
+});
+
+test('guest wishes can still change their receiver', function () {
+    config(['wishbox.owner' => 'Tanja']);
+    $admin = User::factory()->admin()->create();
+    $wish = Wish::factory()->create(['is_public' => false, 'receiver' => 'Tanja']);
+
+    $this->actingAs($admin)
+        ->get(route('admin.wishes.edit', $wish))
+        ->assertSee('name="receiver"', false);
+
+    $this->actingAs($admin)
+        ->patch(route('admin.wishes.update', $wish), ['title' => 'Neu', 'receiver' => 'Sonia'])
+        ->assertSessionHasNoErrors();
+
+    expect($wish->fresh()->receiver)->toBe('Sonia');
+});

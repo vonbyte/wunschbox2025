@@ -6,6 +6,8 @@
             method="PATCH"
             :wish="$wish"
             variant="admin"
+            {{-- Wishes on the wish note always stay the owner's --}}
+            :show-receiver="!$wish->isOnWishNote()"
             submit-text="Speichern"
             :cancel-url="route('admin.index')"
         />
