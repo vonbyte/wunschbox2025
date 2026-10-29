@@ -65,3 +65,17 @@ test('public wishes of other receivers can still be made private', function () {
 
     expect($wish->fresh()->is_public)->toBeFalse();
 });
+
+test('public admin wishes with an admin name as receiver move to the owner', function () {
+    config(['wishbox.owner' => 'Tanja']);
+    $adminWish = Wish::factory()->create(['is_public' => true, 'receiver' => 'Tanja B.']);
+    $privateWish = Wish::factory()->create(['is_public' => false, 'receiver' => 'Max Muster']);
+    $soniasWish = Wish::factory()->create(['is_public' => true, 'receiver' => 'Sonia']);
+
+    (require database_path('migrations/2026_10_29_120000_move_admin_wishes_to_wish_note_owner.php'))->up();
+
+    expect($adminWish->fresh()->receiver)->toBe('Tanja')
+        ->and($adminWish->fresh()->isOnWishNote())->toBeTrue()
+        ->and($privateWish->fresh()->receiver)->toBe('Max Muster')
+        ->and($soniasWish->fresh()->receiver)->toBe('Sonia');
+});
