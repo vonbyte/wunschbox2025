@@ -8,6 +8,7 @@
     'showImage' => true,
     'showLinks' => true,
     'cancelUrl' => null,
+    'errorBag' => 'default',
 ])
 
 @php
@@ -54,7 +55,7 @@
                     @endif
                 @endforeach
             </div>
-            @error('receiver')
+            @error('receiver', $errorBag)
             <p class="field-error">{{ $message }}</p>
             @enderror
         </fieldset>
@@ -73,7 +74,7 @@
             required
             class="{{ $field }}"
             placeholder="{{ $isAdmin ? 'Titel eingeben …' : 'eine Kuscheldecke, ein Buch, Kopfhörer …' }}">
-        @error('title')
+        @error('title', $errorBag)
         <p class="field-error">{{ $message }}</p>
         @enderror
     </div>
@@ -89,7 +90,7 @@
             rows="3"
             class="{{ $field }} resize-none"
             placeholder="{{ $isAdmin ? 'Beschreibung eingeben …' : 'Farbe, Grösse, wo es das gibt …' }}">{{ old('description', $wish?->description) }}</textarea>
-        @error('description')
+        @error('description', $errorBag)
         <p class="field-error">{{ $message }}</p>
         @enderror
     </div>
@@ -126,7 +127,7 @@
                     class="sr-only"
                     @change="const file = $event.target.files[0]; preview = file ? URL.createObjectURL(file) : null; name = file?.name ?? null">
             </label>
-            @error('image')
+            @error('image', $errorBag)
             <p class="field-error">{{ $message }}</p>
             @enderror
         </div>
@@ -145,7 +146,7 @@
                 class="{{ $field }} resize-none"
                 placeholder="https://…">{{ old('example_links', $wish?->example_links ? implode("\n", $wish->example_links) : '') }}</textarea>
             <p class="mt-1 text-sm text-ink-muted">Ein Link pro Zeile oder kommagetrennt</p>
-            @error('example_links')
+            @error('example_links', $errorBag)
             <p class="field-error">{{ $message }}</p>
             @enderror
         </div>

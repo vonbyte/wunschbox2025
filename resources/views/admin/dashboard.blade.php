@@ -13,7 +13,8 @@
 <x-admin-layout title="Wunschbox Admin" heading="Wunschbox · Werkstatt">
     <x-slot:subtitle>Hallo {{ auth()->user()->name }}</x-slot:subtitle>
 
-    @if($errors->any() && old('title') === null)
+    {{-- Errors of the add form are in their own bag and show inside the form --}}
+    @if($errors->any())
         <div class="flash-error" role="alert">
             Nicht gespeichert: {{ $errors->first() }}
         </div>
@@ -107,7 +108,7 @@
     </section>
 
     <!-- My Wish Note -->
-    @php($formOpen = $errors->any() && old('title') !== null)
+    @php($formOpen = $errors->addWish->any())
     <section class="card mt-8" x-data="{ open: {{ $formOpen ? 'true' : 'false' }}, adding: {{ $formOpen ? 'true' : 'false' }} }" aria-labelledby="my-wishes">
         <button type="button" @click="open = !open" :aria-expanded="open"
                 class="flex w-full items-center justify-between gap-4 px-5 py-4 text-left focus-visible:outline-2 focus-visible:outline-pine">
@@ -134,6 +135,7 @@
                     :action="route('admin.wishes.store')"
                     variant="admin"
                     :show-receiver="false"
+                    error-bag="addWish"
                     submit-text="Hinzufügen"
                     class="max-w-2xl"
                 />

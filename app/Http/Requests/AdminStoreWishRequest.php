@@ -9,6 +9,17 @@ use Illuminate\Validation\Rule;
 class AdminStoreWishRequest extends StoreWishRequest
 {
     /**
+     * Errors of the add form on the dashboard go to their own bag, so the dashboard can tell them
+     * apart from the quick edit forms. The edit page uses the default bag.
+     */
+    protected function prepareForValidation(): void
+    {
+        if (!$this->route('wish')) {
+            $this->errorBag = 'addWish';
+        }
+    }
+
+    /**
      * Admins may keep the current receiver of an existing wish, even if it is not in the list.
      * New wishes and wishes on the wish note get no receiver from the request.
      */

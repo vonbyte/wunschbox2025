@@ -156,3 +156,30 @@ test('countdown follows the local time, not UTC', function () {
         ->assertOk()
         ->assertSee('Heute ist Heiligabend');
 });
+
+test('errors of the add form open the form instead of the banner', function () {
+    $admin = User::factory()->admin()->create();
+
+    $this->actingAs($admin)
+        ->from(route('admin.index'))
+        ->post(route('admin.wishes.store'), ['title' => '   '])
+        ->assertSessionHasErrorsIn('addWish', 'title');
+
+    $this->actingAs($admin)
+        ->from(route('admin.index'))
+        ->followingRedirects()
+        ->post(route('admin.wishes.store'), ['title' => '   '])
+        ->assertOk()
+        ->assertSee('<p class="field-error">', false)
+        ->assertSee('open: true, adding: true', false)
+        ->assertDontSee('Nicht gespeichert');
+});
+
+test('edit form errors stay in the default bag', function () {
+    $admin = User::factory()->admin()->create();
+    $wish = Wish::factory()->create();
+
+    $this->actingAs($admin)
+        ->patch(route('admin.wishes.update', $wish), ['title' => '', 'receiver' => $wish->receiver])
+        ->assertSessionHasErrors('title');
+});
