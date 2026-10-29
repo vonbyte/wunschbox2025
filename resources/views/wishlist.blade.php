@@ -1,85 +1,61 @@
-<!DOCTYPE html>
-<html lang="de">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Wunschliste 🎄</title>
-    @vite('resources/css/app.css')
-</head>
-<body class="bg-gradient-to-br from-purple-600 via-pink-500 to-red-500 min-h-screen">
-<div class="container mx-auto px-4 py-12">
-    <div class="max-w-4xl mx-auto">
-        <div class="text-center mb-12">
-            <h1 class="text-5xl font-bold text-white mb-3">⭐ Meine Wunschliste ⭐</h1>
-            <p class="text-white/80 text-lg">Hier sind meine Weihnachtswünsche</p>
+@php($owner = \App\Models\Wish::owner())
+
+<x-public-layout :title="$owner.'s Wunschzettel'">
+    <x-slot:header>
+        <h1 class="-rotate-2 font-hand text-6xl font-bold leading-none text-paper lg:text-7xl">Mein Wunschzettel</h1>
+    </x-slot:header>
+
+    @if($wishes->isEmpty())
+        <div class="py-10 text-center">
+            <p class="font-hand text-4xl text-pine">Der Wunschzettel ist noch leer.</p>
+            <p class="mt-2 text-ink-muted">Schau später wieder vorbei.</p>
         </div>
+    @else
+        <p class="mb-4 font-hand text-3xl text-pine lg:text-4xl">Lieber Santa, ich wünsche mir …</p>
 
-        @forelse($wishes as $wish)
-            <a href="{{ route('wish.show', $wish) }}" class="block group mb-4">
-                <div class="bg-white rounded-lg shadow-md hover:shadow-xl transition-shadow duration-200 p-4">
-
-                    <div class="flex gap-4">
-
-                        <!-- Small Thumbnail (120x90px) -->
-                        <div class="flex-shrink-0">
-                            @if($wish->image)
-                                <div class="w-32 h-32 rounded-lg overflow-hidden bg-gray-100">
-                                    <img
-                                        src="{{ Storage::url($wish->image_thumbnail ?? $wish->image) }}"
-                                        alt="{{ $wish->title }}"
-                                        class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
-                                        loading="lazy">
-                                </div>
-                            @else
-                                <div class="w-full h-full flex items-center justify-center">
-                                    <svg class="w-32 h-24 text-blue-400 opacity-40" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 2v20M2 12h20M6 6l12 12M18 6L6 18"/>
-                                        <circle cx="12" cy="12" r="2" fill="currentColor"/>
-                                        <circle cx="12" cy="4" r="1.5" fill="currentColor"/>
-                                        <circle cx="12" cy="20" r="1.5" fill="currentColor"/>
-                                        <circle cx="4" cy="12" r="1.5" fill="currentColor"/>
-                                        <circle cx="20" cy="12" r="1.5" fill="currentColor"/>
-                                    </svg>
-                                </div>
+        <ol>
+            @foreach($wishes as $wish)
+                @php($linkCount = count($wish->example_links ?? []))
+                <li class="border-b-[1.5px] border-line">
+                    <a href="{{ route('wish.show', $wish) }}" class="group flex items-start gap-3 py-3 focus-visible:outline-2 focus-visible:outline-pine">
+                        <span class="w-8 shrink-0 font-hand text-3xl font-bold text-berry">{{ $loop->iteration }}.</span>
+                        <span class="min-w-0 flex-1">
+                            <span class="block font-hand text-3xl font-bold leading-tight text-ink group-hover:text-pine">{{ $wish->title }}</span>
+                            @if($wish->description || $linkCount)
+                                <span class="mt-0.5 block text-sm text-ink-muted">
+                                    @if($wish->description)
+                                        <span class="line-clamp-1">{{ $wish->description }}</span>
+                                    @endif
+                                    @if($linkCount)
+                                        <span class="inline-flex items-center gap-1 text-pine">
+                                            <svg class="size-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M10 14a4 4 0 005.66 0l3-3a4 4 0 00-5.66-5.66l-1 1M14 10a4 4 0 00-5.66 0l-3 3a4 4 0 005.66 5.66l1-1"/>
+                                            </svg>
+                                            {{ $linkCount }} {{ $linkCount === 1 ? 'Link' : 'Links' }}
+                                        </span>
+                                    @endif
+                                </span>
                             @endif
-                        </div>
+                        </span>
+                        @if($wish->image)
+                            <x-wish-thumb :wish="$wish" :tilt="$loop->odd ? '4deg' : '-3deg'" size="h-12 w-14" class="shrink-0" />
+                        @endif
+                    </a>
+                </li>
+            @endforeach
+        </ol>
 
-                        <!-- Content -->
-                        <div class="flex-1 min-w-0">
-                            <h2 class="text-xl font-bold text-christmas-red mb-2 group-hover:text-red-700 transition line-clamp-1">
-                                {{ $wish->title }}
-                            </h2>
+        <p class="mt-6 text-right font-hand text-3xl text-pine">
+            Deine {{ $owner }}
+            <svg class="inline size-5 -translate-y-0.5 text-berry" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                <path d="M12 21s-7.5-4.6-9.5-9.2C1.2 8.6 3.2 5 6.7 5c2 0 3.6 1.1 4.3 2.6h2C13.7 6.1 15.3 5 17.3 5c3.5 0 5.5 3.6 4.2 6.8C19.5 16.4 12 21 12 21z"/>
+            </svg>
+        </p>
+    @endif
 
-                            @if($wish->description)
-                                <p class="text-gray-600 text-sm leading-relaxed line-clamp-2 mb-2">
-                                    {{ $wish->description }}
-                                </p>
-                            @endif
-
-                            <div class="flex items-center text-christmas-red text-sm font-medium group-hover:translate-x-1 transition">
-                                Details ansehen
-                                <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-                                </svg>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </a>
-        @empty
-            <div class="bg-white rounded-xl shadow-lg p-12 text-center">
-                <div class="text-6xl mb-4">🎁</div>
-                <h2 class="text-2xl font-semibold text-gray-800 mb-2">Die Wunschliste ist noch leer</h2>
-                <p class="text-gray-600">Schau später wieder vorbei!</p>
-            </div>
-        @endforelse
-
-        <div class="text-center mt-8">
-            <a href="{{ route('wishbox') }}" class="inline-block bg-white hover:bg-gray-100 text-christmas-red font-bold py-3 px-8 rounded-lg transition shadow-lg">
-                ← Zurück zur Wunschbox
-            </a>
-        </div>
-    </div>
-</div>
-</body>
-</html>
+    <p class="mt-10 text-center">
+        <a href="{{ route('wishbox') }}" class="font-bold text-pine underline underline-offset-4 hover:text-pine-dark">
+            Selbst einen Wunsch einwerfen
+        </a>
+    </p>
+</x-public-layout>

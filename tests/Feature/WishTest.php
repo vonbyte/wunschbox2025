@@ -7,6 +7,11 @@ use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
+function checkedReceiver(string $receiver): string
+{
+    return 'name="receiver" value="'.$receiver.'" class="sr-only" required checked';
+}
+
 test('edit form preselects the receiver of the wish', function () {
     $admin = User::factory()->create(['is_admin' => true]);
     $wish = Wish::factory()->create(['receiver' => 'Tanja']);
@@ -14,8 +19,8 @@ test('edit form preselects the receiver of the wish', function () {
     $response = $this->actingAs($admin)->get(route('admin.wishes.edit', $wish));
 
     $response->assertOk();
-    $response->assertSee('<option value="Tanja" selected>', false);
-    $response->assertDontSee('<option value="Sonia" selected>', false);
+    $response->assertSee(checkedReceiver('Tanja'), false);
+    $response->assertDontSee(checkedReceiver('Sonia'), false);
 });
 
 test('edit form keeps a receiver outside the default list selected', function () {
@@ -25,8 +30,8 @@ test('edit form keeps a receiver outside the default list selected', function ()
     $this->actingAs($admin)
         ->get(route('admin.wishes.edit', $wish))
         ->assertOk()
-        ->assertSee('<option value="Tanja B." selected>', false)
-        ->assertDontSee('<option value="Sonia" selected>', false);
+        ->assertSee(checkedReceiver('Tanja B.'), false)
+        ->assertDontSee(checkedReceiver('Sonia'), false);
 });
 
 test('updating a wish keeps its receiver', function () {
@@ -58,8 +63,8 @@ test('sort number of a public wish can be updated', function () {
 
 test('sort numbers order numerically', function () {
     $admin = User::factory()->create(['is_admin' => true]);
-    $ten = Wish::factory()->create(['is_public' => true, 'title' => 'Zehn']);
-    $five = Wish::factory()->create(['is_public' => true, 'title' => 'Fünf']);
+    $ten = Wish::factory()->onWishNote()->create(['title' => 'Zehn']);
+    $five = Wish::factory()->onWishNote()->create(['title' => 'Fünf']);
 
     $this->actingAs($admin)->patch(route('admin.wishes.update-sort', $ten), ['sortnr' => '10']);
     $this->actingAs($admin)->patch(route('admin.wishes.update-sort', $five), ['sortnr' => '5']);
@@ -69,7 +74,7 @@ test('sort numbers order numerically', function () {
 
 test('sort number must be a whole number from 0', function (string $sortnr) {
     $admin = User::factory()->create(['is_admin' => true]);
-    $wish = Wish::factory()->create(['is_public' => true, 'sortnr' => 3]);
+    $wish = Wish::factory()->onWishNote()->create(['sortnr' => 3]);
 
     $this->actingAs($admin)
         ->patch(route('admin.wishes.update-sort', $wish), ['sortnr' => $sortnr])
@@ -113,16 +118,16 @@ test('migration turns text sort numbers into integers', function () {
 // not from the (is_public, status, sortnr) index or the creation date.
 function createPublicWishesInMixedOrder(): void
 {
-    Wish::factory()->create([
-        'is_public' => true, 'sortnr' => 1, 'status' => 'packed',
+    Wish::factory()->onWishNote()->create([
+        'sortnr' => 1, 'status' => 'packed',
         'title' => 'Erster Wunsch', 'created_at' => now()->subDays(3),
     ]);
-    Wish::factory()->create([
-        'is_public' => true, 'sortnr' => 20, 'status' => 'idea',
+    Wish::factory()->onWishNote()->create([
+        'sortnr' => 20, 'status' => 'idea',
         'title' => 'Dritter Wunsch', 'created_at' => now()->subDays(2),
     ]);
-    Wish::factory()->create([
-        'is_public' => true, 'sortnr' => 10, 'status' => 'open',
+    Wish::factory()->onWishNote()->create([
+        'sortnr' => 10, 'status' => 'open',
         'title' => 'Zweiter Wunsch', 'created_at' => now()->subDay(),
     ]);
 }
@@ -196,7 +201,7 @@ test('open filter only shows open guest wishes', function () {
     Wish::factory()->create(['status' => 'idea', 'title' => 'Gast Idee']);
     Wish::factory()->create(['status' => 'ordered', 'title' => 'Gast Bestellt']);
     Wish::factory()->create(['status' => 'packed', 'title' => 'Gast Verpackt']);
-    Wish::factory()->create(['status' => 'idea', 'is_public' => true, 'title' => 'Meine Idee']);
+    Wish::factory()->onWishNote()->create(['status' => 'idea', 'title' => 'Meine Idee']);
 
     $guestWishes = $this->actingAs($admin)
         ->get(route('admin.index', ['filter' => 'open']))
@@ -234,25 +239,13 @@ test('guests can only pick receivers from the list', function () {
     expect(Wish::where('title', 'Fremder Wunsch')->exists())->toBeFalse();
 });
 
-test('admin form saves the chosen receiver', function () {
-    $admin = User::factory()->create(['is_admin' => true, 'name' => 'Tanja']);
-
-    $this->actingAs($admin)
-        ->post(route('admin.wishes.store'), ['title' => 'Für Sonia', 'receiver' => 'Sonia'])
-        ->assertSessionHasNoErrors();
-
-    expect(Wish::firstWhere('title', 'Für Sonia'))
-        ->receiver->toBe('Sonia')
-        ->is_public->toBeTrue();
-});
-
 test('admins can keep a receiver outside the list but not set a new one', function () {
     $admin = User::factory()->create(['is_admin' => true]);
     $wish = Wish::factory()->create(['receiver' => 'Tanja B.']);
 
     $this->actingAs($admin)
         ->get(route('admin.wishes.edit', $wish))
-        ->assertSee('<option value="Tanja B." selected>', false);
+        ->assertSee(checkedReceiver('Tanja B.'), false);
 
     $this->actingAs($admin)
         ->patch(route('admin.wishes.update', $wish), ['title' => 'Neu', 'receiver' => 'Tanja B.'])

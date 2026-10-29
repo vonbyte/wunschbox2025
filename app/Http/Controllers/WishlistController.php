@@ -11,13 +11,13 @@ class WishlistController
 
     public function index()
     {
-        $wishes = Wish::sorted()->where('is_public', true)->get();
+        $wishes = Wish::sorted()->onWishNote()->get();
         return view('wishlist', compact('wishes'));
     }
 
     public function show(Wish $wish) {
 
-        if (!$wish->is_public && (!auth()->check() || !auth()->user()->isAdmin())) {
+        if (!$wish->isOnWishNote() && !auth()->user()?->isAdmin()) {
             abort(404, 'Dieser Wunsch ist nicht öffentlich.');
         }
 

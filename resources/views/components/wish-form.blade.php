@@ -3,11 +3,20 @@
     'method' => 'POST',
     'wish' => null,
     'submitText' => 'Absenden',
+    'variant' => 'public',
     'showReceiver' => true,
     'showImage' => true,
     'showLinks' => true,
     'cancelUrl' => null,
+    'errorBag' => 'default',
 ])
+
+@php
+    $isAdmin = $variant === 'admin';
+    $field = $isAdmin ? 'field-box' : 'field-line';
+    $label = $isAdmin ? 'block text-sm font-bold text-ink mb-1' : 'label-caps mb-1';
+    $optional = '<span class="font-normal normal-case tracking-normal text-ink-muted">(optional)</span>';
+@endphp
 
 <form method="POST" action="{{ $action }}" enctype="multipart/form-data" {{ $attributes->merge(['class' => 'space-y-6']) }}>
     @csrf
@@ -15,10 +24,47 @@
         @method($method)
     @endif
 
+    <!-- Receiver Field (conditional) -->
+    @if($showReceiver)
+        @php($selectedReceiver = old('receiver', $wish?->receiver ?? \App\Models\Wish::RECEIVERS[0]))
+        {{-- Keep a stored receiver outside the list (e.g. an admin's name) selectable --}}
+        @php($receivers = array_values(array_unique(array_filter([...\App\Models\Wish::RECEIVERS, $wish?->receiver]))))
+        <fieldset>
+            <legend class="{{ $label }}">{{ $isAdmin ? 'Name' : 'Von' }} *</legend>
+            <div class="mt-2 flex flex-wrap gap-3">
+                @foreach($receivers as $receiver)
+                    @if($isAdmin)
+                        <label class="pill-choice">
+                            <input type="radio" name="receiver" value="{{ $receiver }}" class="sr-only" required @checked($selectedReceiver === $receiver)>
+                            {{ $receiver }}
+                        </label>
+                    @else
+                        <label class="stamp" style="--tilt: {{ $loop->even ? '2deg' : '-3deg' }}">
+                            <input type="radio" name="receiver" value="{{ $receiver }}" class="sr-only" required @checked($selectedReceiver === $receiver)>
+                            <span class="stamp-face">
+                                <svg class="size-4 {{ $loop->even ? 'text-gold' : 'text-pine' }}" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                                    @if($loop->even)
+                                        <path d="M12 2.5l2.9 6 6.6.9-4.8 4.6 1.2 6.5L12 17.4l-5.9 3.1 1.2-6.5L2.5 9.4l6.6-.9z"/>
+                                    @else
+                                        <path d="M12 2l4 6h-2l4 6h-2.5l3.5 5H13v3h-2v-3H5l3.5-5H6l4-6H8z"/>
+                                    @endif
+                                </svg>
+                                <span class="stamp-name">{{ $receiver }}</span>
+                            </span>
+                        </label>
+                    @endif
+                @endforeach
+            </div>
+            @error('receiver', $errorBag)
+            <p class="field-error">{{ $message }}</p>
+            @enderror
+        </fieldset>
+    @endif
+
     <!-- Title Field -->
     <div>
-        <label for="title" class="block text-sm font-medium text-gray-700 mb-2">
-            {{ $showReceiver ? 'Was wünschst du dir?' : 'Titel' }} *
+        <label for="title" class="{{ $label }}">
+            {{ $isAdmin ? 'Wunsch' : 'Ich wünsche mir' }} *
         </label>
         <input
             type="text"
@@ -26,73 +72,63 @@
             name="title"
             value="{{ old('title', $wish?->title) }}"
             required
-            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-christmas-red focus:border-transparent transition"
-            placeholder="{{ $showReceiver ? 'z.B. Kuscheldecke, Buch, Kopfhörer...' : 'Titel eingeben...' }}">
-        @error('title')
-        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+            class="{{ $field }}"
+            placeholder="{{ $isAdmin ? 'Titel eingeben …' : 'eine Kuscheldecke, ein Buch, Kopfhörer …' }}">
+        @error('title', $errorBag)
+        <p class="field-error">{{ $message }}</p>
         @enderror
     </div>
 
-    <!-- Receiver Field (conditional) -->
-    @if($showReceiver)
-        <div>
-            <label for="receiver" class="block text-sm font-medium text-gray-700 mb-2">
-                Dein Name *
-            </label>
-            @php($selectedReceiver = old('receiver', $wish?->receiver ?? \App\Models\Wish::RECEIVERS[0]))
-            {{-- Keep a stored receiver outside the list (e.g. an admin's name) selectable --}}
-            @php($receivers = array_values(array_unique(array_filter([...\App\Models\Wish::RECEIVERS, $wish?->receiver]))))
-            <select
-                id="receiver"
-                name="receiver"
-                required
-                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-christmas-red focus:border-transparent transition">
-                @foreach($receivers as $receiver)
-                    <option value="{{ $receiver }}" @selected($selectedReceiver === $receiver)>{{ $receiver }}</option>
-                @endforeach
-            </select>
-            @error('receiver')
-            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-            @enderror
-        </div>
-    @endif
-
     <!-- Description Field -->
     <div>
-        <label for="description" class="block text-sm font-medium text-gray-700 mb-2">
-            Beschreibung {{ $showReceiver ? '(optional)' : '' }}
+        <label for="description" class="{{ $label }}">
+            {{ $isAdmin ? 'Beschreibung' : 'Genauer gesagt' }} {!! $optional !!}
         </label>
         <textarea
             id="description"
             name="description"
-            rows="4"
-            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-christmas-red focus:border-transparent transition resize-none"
-            placeholder="{{ $showReceiver ? 'Erzähl uns mehr über deinen Wunsch...' : 'Beschreibung eingeben...' }}">{{ old('description', $wish?->description) }}</textarea>
-        @error('description')
-        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+            rows="3"
+            class="{{ $field }} resize-none"
+            placeholder="{{ $isAdmin ? 'Beschreibung eingeben …' : 'Farbe, Grösse, wo es das gibt …' }}">{{ old('description', $wish?->description) }}</textarea>
+        @error('description', $errorBag)
+        <p class="field-error">{{ $message }}</p>
         @enderror
     </div>
 
     <!-- Image Upload (conditional) -->
     @if($showImage)
-        <div>
-            <label for="image" class="block text-sm font-medium text-gray-700 mb-2">
-                Bild hochladen (optional)
+        <div x-data="{ preview: null, name: null }">
+            <span class="{{ $label }}">Bild {!! $optional !!}</span>
+            <label for="image" class="mt-2 flex cursor-pointer items-center gap-4 rounded-xl p-1 focus-within:outline-2 focus-within:outline-pine">
+                <span class="polaroid shrink-0">
+                    <span class="flex size-20 items-center justify-center overflow-hidden bg-pine-light {{ $isAdmin ? '' : 'lg:size-28' }}">
+                        <template x-if="preview">
+                            <img :src="preview" alt="" class="size-full object-cover">
+                        </template>
+                        @if($wish?->image)
+                            <img x-show="!preview" src="{{ Storage::url($wish->image_thumbnail ?? $wish->image) }}" alt="{{ $wish->title }}" class="size-full object-cover">
+                        @else
+                            <svg x-show="!preview" class="size-7 text-pine" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M4 8a2 2 0 012-2h1.5l1.5-2h6l1.5 2H18a2 2 0 012 2v9a2 2 0 01-2 2H6a2 2 0 01-2-2z"/>
+                                <circle cx="12" cy="12.5" r="3.5"/>
+                            </svg>
+                        @endif
+                    </span>
+                </span>
+                <span class="leading-tight">
+                    <span class="block font-hand text-2xl text-ink" x-text="name ?? @js($wish?->image ? 'Bild ersetzen?' : 'Foto dazu?')">{{ $wish?->image ? 'Bild ersetzen?' : 'Foto dazu?' }}</span>
+                    <span class="block text-sm text-ink-muted" x-text="name ? 'Tippen zum Ändern' : 'Tippen zum Anheften'">Tippen zum Anheften</span>
+                </span>
+                <input
+                    type="file"
+                    id="image"
+                    name="image"
+                    accept="image/*"
+                    class="sr-only"
+                    @change="const file = $event.target.files[0]; if (preview) URL.revokeObjectURL(preview); preview = file ? URL.createObjectURL(file) : null; name = file?.name ?? null">
             </label>
-            @if($wish?->image)
-                <div class="mb-3">
-                    <img src="{{ Storage::url($wish->image) }}" alt="{{ $wish->title }}" class="w-32 h-32 object-cover rounded-lg">
-                    <p class="text-sm text-gray-500 mt-1">Aktuelles Bild (wird ersetzt, wenn du ein neues hochlädst)</p>
-                </div>
-            @endif
-            <input
-                type="file"
-                id="image"
-                name="image"
-                accept="image/*"
-                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-christmas-red focus:border-transparent transition file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-christmas-red file:text-white hover:file:bg-red-700">
-            @error('image')
-            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+            @error('image', $errorBag)
+            <p class="field-error">{{ $message }}</p>
             @enderror
         </div>
     @endif
@@ -100,39 +136,40 @@
     <!-- Example Links (conditional) -->
     @if($showLinks)
         <div>
-            <label for="example_links" class="block text-sm font-medium text-gray-700 mb-2">
-                Beispiel-Links (optional)
+            <label for="example_links" class="{{ $label }}">
+                Links {!! $optional !!}
             </label>
             <textarea
                 id="example_links"
                 name="example_links"
-                rows="3"
-                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-christmas-red focus:border-transparent transition resize-none"
-                placeholder="https://example.com/produkt1&#10;https://example.com/produkt2&#10;(Ein Link pro Zeile)">{{ old('example_links', $wish?->example_links ? implode("\n", $wish->example_links) : '') }}</textarea>
-            <p class="mt-1 text-sm text-gray-500">Ein Link pro Zeile oder kommagetrennt</p>
-            @error('example_links')
-            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                rows="2"
+                class="{{ $field }} resize-none"
+                placeholder="https://…">{{ old('example_links', $wish?->example_links ? implode("\n", $wish->example_links) : '') }}</textarea>
+            <p class="mt-1 text-sm text-ink-muted">Ein Link pro Zeile oder kommagetrennt</p>
+            @error('example_links', $errorBag)
+            <p class="field-error">{{ $message }}</p>
             @enderror
         </div>
     @endif
 
     <!-- Actions -->
-    @if($cancelUrl)
-        <div class="flex gap-4">
-            <a href="{{ $cancelUrl }}" class="flex-1 bg-gray-500 hover:bg-gray-600 text-white font-bold py-3 px-6 rounded-lg text-center transition">
-                Abbrechen
-            </a>
-            <button
-                type="submit"
-                class="flex-1 bg-christmas-red hover:bg-red-700 text-white font-bold py-3 px-6 rounded-lg transition">
-                {{ $submitText }}
-            </button>
+    @if($isAdmin)
+        <div class="flex flex-wrap gap-3">
+            <button type="submit" class="btn btn-primary">{{ $submitText }}</button>
+            @if($cancelUrl)
+                <a href="{{ $cancelUrl }}" class="btn btn-ghost">Abbrechen</a>
+            @endif
         </div>
     @else
-        <button
-            type="submit"
-            class="w-full bg-christmas-red hover:bg-red-700 text-white font-bold py-4 px-6 rounded-lg transition duration-200 transform hover:scale-105 shadow-lg">
-            {{ $submitText }}
-        </button>
+        <div class="flex justify-center pt-2">
+            <button type="submit" class="seal">
+                <span class="seal-disc">
+                    <svg class="size-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M4 10h16v10H4zM3 7h18v3H3zM12 7v13M12 7c-2-3-6-3-6-1s4 1 6 1zm0 0c2-3 6-3 6-1s-4 1-6 1z"/>
+                    </svg>
+                </span>
+                <span class="font-hand text-3xl font-bold text-seal">{{ $submitText }}</span>
+            </button>
+        </div>
     @endif
 </form>

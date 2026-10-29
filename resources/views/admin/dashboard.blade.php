@@ -1,321 +1,179 @@
-<x-admin-layout title="Admin Dashboard" heading="Wishbox Admin">
-    <x-slot:subtitle>Hallo, {{ auth()->user()->name }}!</x-slot:subtitle>
+@php
+    $filters = [
+        null => ['label' => 'Alle', 'count' => $counts['all'], 'color' => 'text-pine'],
+        'open' => ['label' => 'Offen', 'count' => $counts['open'], 'color' => 'text-blue-700'],
+        'delivered' => ['label' => 'Geliefert', 'count' => $counts['delivered'], 'color' => 'text-orange-700'],
+        'packed' => ['label' => 'Eingepackt', 'count' => $counts['packed'], 'color' => 'text-green-700'],
+        'unpacked' => ['label' => 'Ausgepackt', 'count' => $counts['unpacked'], 'color' => 'text-purple-700'],
+    ];
+    $rowGrid = "grid grid-cols-[3rem_minmax(0,1fr)_auto] [grid-template-areas:'thumb_title_status'_'nums_nums_actions'] md:grid-cols-[3rem_minmax(0,1fr)_4.5rem_4.5rem_8.5rem_7rem] md:[grid-template-areas:'thumb_title_nums_nums_status_actions'] items-center gap-x-3 gap-y-2";
+    $myRowGrid = 'grid grid-cols-[4.5rem_3rem_minmax(0,1fr)_auto] items-center gap-x-3';
+@endphp
 
-    <x-slot:actions>
-        <a href="{{ route('profile.edit') }}" class="text-gray-300 hover:text-white transition">
-            Profil
-        </a>
-        <form method="POST" action="{{ route('logout') }}">
-            @csrf
-            <button type="submit" class="bg-red-600 hover:bg-red-700 px-4 py-2 rounded transition">
-                Abmelden
-            </button>
-        </form>
-    </x-slot:actions>
+<x-admin-layout title="Wunschbox Admin" heading="Wunschbox · Werkstatt">
+    <x-slot:subtitle>Hallo {{ auth()->user()->name }}</x-slot:subtitle>
 
-    <x-slot:scripts>
-        <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
-    </x-slot:scripts>
-
-    @if(session('success'))
-        <div class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 mb-6 rounded">
-            {{ session('success') }}
-        </div>
-    @endif
-
+    {{-- Errors of the add form are in their own bag and show inside the form --}}
     @if($errors->any())
-        <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-6 rounded">
+        <div class="flash-error" role="alert">
             Nicht gespeichert: {{ $errors->first() }}
         </div>
     @endif
 
-
     <!-- Guest Wishes -->
-    <div class="bg-white rounded-lg shadow-md p-6">
-        <h2 class="text-xl font-bold text-gray-800 mb-4 border-b-2 border-christmas-red pb-2">
-            📝 Gäste-Wünsche ({{ $guestWishes->count() }})
-        </h2>
+    <section aria-labelledby="guest-wishes">
+        <h1 id="guest-wishes" class="mb-4 font-hand text-4xl font-bold leading-none text-berry">Gäste-Wünsche</h1>
 
-        <div class="mb-4 flex gap-2">
-            <a href="{{ route('admin.index') }}"
-               class="px-4 py-2 rounded text-sm font-medium transition
-                  {{ !request('filter') ? 'bg-gray-800 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300' }}">
-                Alle
-            </a>
-            <a href="{{ route('admin.index', ['filter' => 'open']) }}"
-               class="px-4 py-2 rounded text-sm font-medium transition
-                  {{ request('filter') === 'open' ? 'bg-gray-800 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300' }}">
-                Offen
-            </a>
-            <a href="{{ route('admin.index', ['filter' => 'delivered']) }}"
-               class="px-4 py-2 rounded text-sm font-medium transition
-                  {{ request('filter') === 'delivered' ? 'bg-gray-800 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300' }}">
-                Geschenk
-            </a>
-            <a href="{{ route('admin.index', ['filter' => 'packed']) }}"
-               class="px-4 py-2 rounded text-sm font-medium transition
-                  {{ request('filter') === 'packed' ? 'bg-gray-800 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300' }}">
-                Verpackt
-            </a>
-            <a href="{{ route('admin.index', ['filter' => 'unpacked']) }}"
-               class="px-4 py-2 rounded text-sm font-medium transition
-                  {{ request('filter') === 'unpacked' ? 'bg-gray-800 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300' }}">
-                Ausgepackt
-            </a>
-        </div>
+        <nav aria-label="Filter" class="mb-4 grid grid-cols-5 gap-1.5 sm:gap-2">
+            @foreach($filters as $key => $item)
+                @php($active = $filter === ($key ?: null))
+                <a href="{{ route('admin.index', $key ? ['filter' => $key] : []) }}"
+                   @if($active) aria-current="page" @endif
+                   class="min-w-0 rounded-xl border px-2 py-1.5 transition sm:px-3 sm:py-2 focus-visible:outline-2 focus-visible:outline-pine
+                      {{ $active ? 'border-pine bg-pine text-white' : 'border-line bg-white hover:border-pine' }}">
+                    <span class="block truncate text-[11px] font-bold sm:text-xs {{ $active ? 'text-pine-muted' : $item['color'] }}">{{ $item['label'] }}</span>
+                    <span class="block text-xl font-bold leading-tight sm:text-2xl">{{ $item['count'] }}</span>
+                </a>
+            @endforeach
+        </nav>
 
-        @if($guestWishes->isEmpty())
-            <p class="text-gray-500 py-4">Noch keine Wünsche von Gästen...</p>
-        @else
-            <div class="overflow-x-auto">
-                <table class="w-full">
-                    <thead class="bg-gray-50">
-                    <tr>
-                        <th class="px-3 py-3 text-left text-xs font-semibold text-gray-700 w-16">#</th>
-                        <th class="px-3 py-3 text-left text-xs font-semibold text-gray-700 w-16">Sortierung</th>
-                        <th class="px-3 py-3 text-left text-xs font-semibold text-gray-700 w-24">Bild</th>
-                        <th class="px-3 py-3 text-left text-xs font-semibold text-gray-700">Titel</th>
-                        <th class="px-3 py-3 text-left text-xs font-semibold text-gray-700 w-32">Von</th>
-                        <th class="px-3 py-3 text-left text-xs font-semibold text-gray-700 w-32">Status</th>
-                        <th class="px-3 py-3 text-right text-xs font-semibold text-gray-700 w-64">Aktionen</th>
-                    </tr>
-                    </thead>
-                    <tbody class="divide-y divide-gray-200">
+        <div class="card overflow-hidden">
+            @if($guestWishes->isEmpty())
+                <p class="px-4 py-6 text-ink-muted">Noch keine Wünsche von Gästen …</p>
+            @else
+                <div class="{{ $rowGrid }} hidden border-b border-line px-4 py-2 text-xs font-bold tracking-wider text-ink-muted uppercase md:grid" aria-hidden="true">
+                    <span class="[grid-area:thumb]"></span>
+                    <span class="[grid-area:title]">Wunsch</span>
+                    <span class="[grid-area:nums] grid grid-cols-2 gap-3"><span>Paket</span><span>Sort.</span></span>
+                    <span class="[grid-area:status]">Status</span>
+                    <span class="[grid-area:actions]"></span>
+                </div>
+                <ul class="divide-y divide-line">
                     @foreach($guestWishes as $wish)
-                        <tr class="hover:bg-gray-50">
-                            <!-- Package Nr -->
-                            <td class="px-3 py-3">
-                                <form method="POST" action="{{ route('admin.wishes.update-nr', $wish) }}"
-                                      class="flex items-center">
-                                    @csrf @method('PATCH')
-                                    <input
-                                        type="number"
-                                        name="package_nr"
-                                        value="{{ $wish->package_nr }}"
-                                        min="0"
-                                        step="1"
-                                        required
-                                        class="w-14 px-2 py-1 text-sm border border-gray-300 rounded"
-                                        onchange="this.form.requestSubmit()">
-                                </form>
-                            </td>
-                            <!-- Sort Nr -->
-                            <td class="px-3 py-3">
-                                <form method="POST" action="{{ route('admin.wishes.update-sort', $wish) }}"
-                                      class="flex items-center">
-                                    @csrf @method('PATCH')
-                                    <input
-                                        type="number"
-                                        name="sortnr"
-                                        value="{{ $wish->sortnr }}"
-                                        min="0"
-                                        step="1"
-                                        required
-                                        class="w-14 px-2 py-1 text-sm border border-gray-300 rounded"
-                                        onchange="this.form.requestSubmit()">
-                                </form>
-                            </td>
-
+                        <li class="{{ $rowGrid }} px-4 py-3 hover:bg-paper/60">
                             <!-- Image -->
-                            <td class="px-3 py-3">
-                                @if($wish->image)
-                                    <img src="{{ Storage::url($wish->image_thumbnail ?? $wish->image) }}"
-                                         alt="{{ $wish->title }}"
-                                         class="w-16 h-16 object-cover rounded">
-                                @else
-                                    <div class="w-16 h-16 bg-gray-100 rounded flex items-center justify-center">
-                                        <svg class="w-8 h-8 text-gray-300" viewBox="0 0 24 24" fill="currentColor">
-                                            <path d="M12 2L9 8h2l-2 5h2l-3 7h8l-3-7h2l-2-5h2l-3-6z"/>
-                                        </svg>
-                                    </div>
-                                @endif
-                            </td>
+                            <a href="{{ route('wish.show', $wish) }}" class="[grid-area:thumb]" tabindex="-1" aria-hidden="true">
+                                <x-wish-thumb :wish="$wish" :tilt="$loop->odd ? '-3deg' : '2deg'" />
+                            </a>
 
-                            <!-- Title -->
-                            <td class="px-3 py-3">
-                                <a href="{{ route('wish.show', $wish) }}"
-                                   class="font-semibold text-gray-900 hover:text-christmas-red">
-                                    {{ $wish->title }}
-                                </a>
-                                @if($wish->description)
-                                    <p class="text-sm text-gray-500 line-clamp-1">{{ Str::limit($wish->description, 50) }}</p>
-                                @endif
-                            </td>
+                            <!-- Title and receiver -->
+                            <div class="[grid-area:title] min-w-0">
+                                <a href="{{ route('wish.show', $wish) }}" class="font-bold hover:text-pine">{{ $wish->title }}</a>
+                                <p class="truncate text-sm text-ink-muted">
+                                    von {{ $wish->receiver }}@if($wish->description) · {{ $wish->description }}@endif
+                                </p>
+                            </div>
 
-                            <!-- Receiver -->
-                            <td class="px-3 py-3 text-sm">{{ $wish->receiver }}</td>
+                            <!-- Package Nr and Sort Nr -->
+                            <div class="[grid-area:nums] grid grid-cols-2 gap-3 max-md:flex max-md:gap-4">
+                                <form method="POST" action="{{ route('admin.wishes.update-nr', $wish) }}">
+                                    @csrf @method('PATCH')
+                                    <label class="flex items-center gap-1.5 text-xs font-bold text-ink-muted">
+                                        <span class="md:sr-only">Paket</span>
+                                        <input type="number" name="package_nr" value="{{ $wish->package_nr }}" min="0" step="1" required
+                                               class="field-box w-16 px-2 py-1 text-center text-sm"
+                                               onchange="this.form.requestSubmit()">
+                                    </label>
+                                </form>
+                                <form method="POST" action="{{ route('admin.wishes.update-sort', $wish) }}">
+                                    @csrf @method('PATCH')
+                                    <label class="flex items-center gap-1.5 text-xs font-bold text-ink-muted">
+                                        <span class="md:sr-only">Sort.</span>
+                                        <input type="number" name="sortnr" value="{{ $wish->sortnr }}" min="0" step="1" required
+                                               class="field-box w-16 px-2 py-1 text-center text-sm"
+                                               onchange="this.form.requestSubmit()">
+                                    </label>
+                                </form>
+                            </div>
 
                             <!-- Status -->
-                            <td class="px-3 py-3">
-                                <form method="POST" action="{{ route('admin.wishes.update-status', $wish) }}">
-                                    @csrf @method('PATCH')
-                                    <select
-                                        name="status"
+                            <form method="POST" action="{{ route('admin.wishes.update-status', $wish) }}" class="[grid-area:status]">
+                                @csrf @method('PATCH')
+                                <select name="status" aria-label="Status von {{ $wish->title }}"
                                         onchange="this.form.submit()"
-                                        class="text-xs px-2 py-1 rounded border-0 font-medium state-{{$wish->status_color}}">
-                                        @foreach(\App\Models\Wish::getStatuses() as $value => $label)
-                                            <option
-                                                value="{{ $value }}" {{ $wish->status === $value ? 'selected' : '' }}>
-                                                {{ $label }}
-                                            </option>
-                                        @endforeach
-                                    </select>
-                                </form>
-                            </td>
+                                        class="state-{{ $wish->status_color }} cursor-pointer rounded-full border-0 py-1 pr-2 pl-3 text-xs font-bold">
+                                    @foreach(\App\Models\Wish::getStatuses() as $value => $label)
+                                        <option value="{{ $value }}" @selected($wish->status === $value)>{{ $label }}</option>
+                                    @endforeach
+                                </select>
+                            </form>
 
                             <!-- Actions -->
-                            <td class="px-3 py-3 text-right">
-                                <div class="flex items-center justify-end gap-2">
-                                    <a href="{{ route('admin.wishes.edit', $wish) }}"
-                                       class="text-xs text-blue-600 hover:text-blue-800 font-medium">
-                                        Bearbeiten
-                                    </a>
-                                    <form method="POST" action="{{ route('admin.wishes.toggle', $wish) }}"
-                                          class="inline">
-                                        @csrf @method('PATCH')
-                                        <button type="submit"
-                                                class="text-xs text-green-600 hover:text-green-800 font-medium">
-                                            → Meine Liste
-                                        </button>
-                                    </form>
-                                    <form method="POST" action="{{ route('admin.wishes.destroy', $wish) }}"
-                                          class="inline" onsubmit="return confirm('Wirklich löschen?')">
-                                        @csrf @method('DELETE')
-                                        <button type="submit"
-                                                class="text-xs text-red-600 hover:text-red-800 font-medium">
-                                            Löschen
-                                        </button>
-                                    </form>
-                                </div>
-                            </td>
-                        </tr>
+                            <x-wish-actions :wish="$wish" class="[grid-area:actions]" />
+                        </li>
                     @endforeach
-                    </tbody>
-                </table>
-            </div>
-
-        @endif
-    </div>
-
-    <!-- Add My Wish -->
-    <div class="bg-white rounded-lg shadow-md p-6 mb-8">
-        <h2 class="text-xl font-bold text-gray-800 mb-4 border-b-2 border-christmas-red pb-2">
-            ➕ Meinen Wunsch hinzufügen
-        </h2>
-        <x-wish-form
-            :action="route('admin.wishes.store')"
-            :show-receiver="true"
-            submit-text="Hinzufügen"
-            class="max-w-2xl"
-        />
-    </div>
-
-    <!-- My Public Wishes -->
-    <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg" x-data="{ open: false }">
-        <div class="p-6">
-            <button @click="open = !open" class="w-full flex items-center justify-between text-left">
-                <h3 class="text-2xl font-bold text-gray-800">
-                    ⭐ Meine öffentliche Wunschliste ({{ $myWishes->count() }})
-                </h3>
-                <svg class="w-6 h-6 transition-transform" :class="{ 'rotate-180': open }" fill="none"
-                     stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-                </svg>
-            </button>
-
-            <div x-show="open" x-collapse class="mt-6">
-                @if($myWishes->isEmpty())
-                    <p class="text-gray-500 py-4">Noch keine Wünsche auf deiner öffentlichen Liste...</p>
-                @else
-                    <div class="overflow-x-auto">
-                        <table class="w-full">
-                            <thead class="bg-gray-50">
-                            <tr>
-                                <th class="px-3 py-3 text-left text-xs font-semibold text-gray-700 w-16">#</th>
-                                <th class="px-3 py-3 text-left text-xs font-semibold text-gray-700 w-24">Bild</th>
-                                <th class="px-3 py-3 text-left text-xs font-semibold text-gray-700">Titel</th>
-                                <th class="px-3 py-3 text-right text-xs font-semibold text-gray-700 w-48">Aktionen</th>
-                            </tr>
-                            </thead>
-                            <tbody class="divide-y divide-gray-200">
-                            @foreach($myWishes as $wish)
-                                <tr class="hover:bg-gray-50">
-                                    <!-- Sort Nr -->
-                                    <td class="px-3 py-3">
-                                        <form method="POST" action="{{ route('admin.wishes.update-sort', $wish) }}"
-                                              class="flex items-center">
-                                            @csrf @method('PATCH')
-                                            <input
-                                                type="number"
-                                                name="sortnr"
-                                                value="{{ $wish->sortnr }}"
-                                                min="0"
-                                                step="1"
-                                                required
-                                                class="w-14 px-2 py-1 text-sm border border-gray-300 rounded"
-                                                onchange="this.form.requestSubmit()">
-                                        </form>
-                                    </td>
-
-                                    <!-- Image -->
-                                    <td class="px-3 py-3">
-                                        @if($wish->image)
-                                            <img src="{{ Storage::url($wish->image_thumbnail ?? $wish->image) }}"
-                                                 alt="{{ $wish->title }}"
-                                                 class="w-16 h-16 object-cover rounded">
-                                        @else
-                                            <div class="w-16 h-16 bg-gray-100 rounded flex items-center justify-center">
-                                                <svg class="w-8 h-8 text-gray-300" viewBox="0 0 24 24"
-                                                     fill="currentColor">
-                                                    <path d="M12 2L9 8h2l-2 5h2l-3 7h8l-3-7h2l-2-5h2l-3-6z"/>
-                                                </svg>
-                                            </div>
-                                        @endif
-                                    </td>
-
-                                    <!-- Title -->
-                                    <td class="px-3 py-3">
-                                        <a href="{{ route('wish.show', $wish) }}"
-                                           class="font-semibold text-gray-900 hover:text-christmas-red">
-                                            {{ $wish->title }}
-                                        </a>
-                                        @if($wish->description)
-                                            <p class="text-sm text-gray-500 line-clamp-1">{{ Str::limit($wish->description, 60) }}</p>
-                                        @endif
-                                    </td>
-
-                                    <!-- Actions -->
-                                    <td class="px-3 py-3 text-right">
-                                        <div class="flex items-center justify-end gap-2">
-                                            <a href="{{ route('admin.wishes.edit', $wish) }}"
-                                               class="text-xs text-blue-600 hover:text-blue-800 font-medium">
-                                                Bearbeiten
-                                            </a>
-                                            <form method="POST" action="{{ route('admin.wishes.toggle', $wish) }}"
-                                                  class="inline">
-                                                @csrf @method('PATCH')
-                                                <button type="submit"
-                                                        class="text-xs text-orange-600 hover:text-orange-800 font-medium">
-                                                    Privat
-                                                </button>
-                                            </form>
-                                            <form method="POST" action="{{ route('admin.wishes.destroy', $wish) }}"
-                                                  class="inline" onsubmit="return confirm('Wirklich löschen?')">
-                                                @csrf @method('DELETE')
-                                                <button type="submit"
-                                                        class="text-xs text-red-600 hover:text-red-800 font-medium">
-                                                    Löschen
-                                                </button>
-                                            </form>
-                                        </div>
-                                    </td>
-                                </tr>
-                            @endforeach
-                            </tbody>
-                        </table>
-                    </div>
-                @endif
-            </div>
+                </ul>
+            @endif
         </div>
-    </div>
+    </section>
+
+    <!-- My Wish Note -->
+    @php($formOpen = $errors->addWish->any())
+    <section class="card mt-8" x-data="{ open: {{ $formOpen ? 'true' : 'false' }}, adding: {{ $formOpen ? 'true' : 'false' }} }" aria-labelledby="my-wishes">
+        <button type="button" @click="open = !open" :aria-expanded="open"
+                class="flex w-full items-center justify-between gap-4 px-5 py-4 text-left focus-visible:outline-2 focus-visible:outline-pine">
+            <span>
+                <span id="my-wishes" class="font-hand text-3xl font-bold text-pine">Mein Wunschzettel</span>
+                <span class="ml-1 text-sm text-ink-muted">{{ $myWishes->count() }} {{ $myWishes->count() === 1 ? 'Wunsch' : 'Wünsche' }}, öffentlich</span>
+            </span>
+            <svg class="size-5 shrink-0 text-ink-muted transition-transform" :class="{ 'rotate-180': open }" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/>
+            </svg>
+        </button>
+
+        <div x-show="open" x-collapse x-cloak class="border-t border-line px-5 py-4">
+            <div class="mb-4 flex flex-wrap gap-2">
+                <button type="button" class="btn btn-primary" @click="adding = !adding" :aria-expanded="adding">
+                    <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path stroke-linecap="round" d="M12 5v14M5 12h14"/></svg>
+                    Wunsch hinzufügen
+                </button>
+                <a href="{{ route('wishlist') }}" class="btn btn-ghost">Wunschzettel ansehen</a>
+            </div>
+
+            <div x-show="adding" x-collapse x-cloak class="mb-6 rounded-xl bg-paper p-5">
+                <x-wish-form
+                    :action="route('admin.wishes.store')"
+                    variant="admin"
+                    :show-receiver="false"
+                    error-bag="addWish"
+                    submit-text="Hinzufügen"
+                    class="max-w-2xl"
+                />
+            </div>
+
+            @if($myWishes->isEmpty())
+                <p class="py-2 text-ink-muted">Noch keine Wünsche auf deinem Wunschzettel …</p>
+            @else
+                <ul class="divide-y divide-line">
+                    @foreach($myWishes as $wish)
+                        <li class="{{ $myRowGrid }} py-3">
+                            <!-- Sort Nr -->
+                            <form method="POST" action="{{ route('admin.wishes.update-sort', $wish) }}">
+                                @csrf @method('PATCH')
+                                <label class="flex items-center gap-1.5 text-xs font-bold text-ink-muted">
+                                    <span class="sr-only">Sortierung</span>
+                                    <input type="number" name="sortnr" value="{{ $wish->sortnr }}" min="0" step="1" required
+                                           class="field-box w-16 px-2 py-1 text-center text-sm"
+                                           onchange="this.form.requestSubmit()">
+                                </label>
+                            </form>
+
+                            <a href="{{ route('wish.show', $wish) }}" tabindex="-1" aria-hidden="true">
+                                <x-wish-thumb :wish="$wish" :tilt="$loop->odd ? '2deg' : '-3deg'" />
+                            </a>
+
+                            <div class="min-w-0">
+                                <a href="{{ route('wish.show', $wish) }}" class="font-hand text-2xl font-bold leading-tight hover:text-pine">{{ $wish->title }}</a>
+                                @if($wish->description)
+                                    <p class="truncate text-sm text-ink-muted">{{ $wish->description }}</p>
+                                @endif
+                            </div>
+
+                            <x-wish-actions :wish="$wish" />
+                        </li>
+                    @endforeach
+                </ul>
+            @endif
+        </div>
+    </section>
 </x-admin-layout>

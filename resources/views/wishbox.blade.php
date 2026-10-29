@@ -1,39 +1,35 @@
-<!doctype html>
-<html lang="de">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Wunschbox</title>
-    @vite('resources/css/app.css')
-</head>
-<body class="bg-gradient-to-br from-red-700 via-red-950 to-green-950 min-h-screen">
-<!-- Snowflakes -->
-@for($i=0;$i<15;$i++)
-    <div class="snowflake"
-         style="left: {{$i * 6.66}}%; animation-duration: {{random_int(10,20)}}s;animation-delay: {{random_int(0,5)}}s">❄
-    </div>
-@endfor
-<div class="container mx-auto px-4 py-12">
-    <div class="max-w-2xl mx-auto bg-white rounded-3xl shadow-2xl p-8 md:p-12">
-        <div class="text-center mb-8">
-            <h1 class="text-5xl font-bold text-christmas-red mb-3">🎄 Wunschbox 🎄</h1>
-            <p class="text-gray-600 text-lg">Rein mit den Wünschen!</p>
+<x-public-layout title="Wunschbox">
+    <x-slot:header>
+        {{-- Stacked on phones; from lg the title sits left, countdown and subtitle right --}}
+        <div class="grid lg:grid-cols-[auto_1fr] lg:items-end lg:gap-x-10">
+            <p class="mb-2 inline-flex items-center gap-1.5 text-sm font-bold tracking-wide text-gold-bright lg:col-start-2 lg:row-start-1 lg:mb-1 lg:justify-self-end">
+                <svg class="size-4" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                    <path d="M12 2.5l2.9 6 6.6.9-4.8 4.6 1.2 6.5L12 17.4l-5.9 3.1 1.2-6.5L2.5 9.4l6.6-.9z"/>
+                </svg>
+                <x-christmas-countdown lead="Nur noch" />
+            </p>
+            <h1 class="-rotate-2 font-hand text-6xl font-bold leading-none text-paper lg:col-start-1 lg:row-span-2 lg:row-start-1 lg:text-7xl">Wunschbox</h1>
+            <p class="mt-2 text-pine-muted lg:col-start-2 lg:row-start-2 lg:mt-0 lg:text-right">Santa hat die Rentiere schon vorgewarnt.</p>
         </div>
-        @if(session('success'))
-            <div class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 mb-6 rounded">
-                <p class="font-semibold">{{ session('success') }}</p>
-            </div>
-        @endif
-        <x-wish-form
-            :action="route('wishbox.store')"
-            submit-text="🎁 Wunsch absenden"
-        />
-        <div class="mt-8 text-center">
-            <a href="{{ route('wishlist') }}" class="text-christmas-red hover:text-red-700 font-semibold">
-                📜 Zur Wunschliste →
-            </a>
+    </x-slot:header>
+
+    @if(session('success'))
+        <div class="flash flex items-center gap-3" role="status">
+            <svg class="size-6 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+            </svg>
+            <p>{{ session('success') }}</p>
         </div>
-    </div>
-</div>
-</body>
-</html>
+    @endif
+
+    <x-wish-form
+        :action="route('wishbox.store')"
+        submit-text="Ab in die Box!"
+    />
+
+    <p class="mt-10 text-center">
+        <a href="{{ route('wishlist') }}" class="font-bold text-pine underline underline-offset-4 hover:text-pine-dark">
+            {{ \App\Models\Wish::owner() }}s Wunschzettel ansehen
+        </a>
+    </p>
+</x-public-layout>

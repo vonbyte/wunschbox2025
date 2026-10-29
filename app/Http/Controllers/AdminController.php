@@ -14,21 +14,45 @@ class AdminController extends Controller
 
     public function index(Request $request)
     {
-        $myWishes = Wish::sorted()->where('is_public', true)->get();
-        $hasFilter = $request->has('filter');
+        $myWishes = Wish::sorted()->onWishNote()->get();
+        $filter = in_array($request->query('filter'), ['packed', 'unpacked', 'open', 'delivered'], true)
+            ? $request->query('filter')
+            : null;
 
-        if ($hasFilter && in_array($request->filter, ['packed', 'unpacked', 'open','delivered'])) {
-            $scope = ucfirst($request->query('filter'));
-            $guestWishes = Wish::{$scope}()
-                ->where('is_public', false)
+        if ($filter) {
+            $guestWishes = Wish::{ucfirst($filter)}()
+                ->notOnWishNote()
                 ->get();
         } else {
             $guestWishes = Wish::sorted()
-                ->where('is_public', false)
+                ->notOnWishNote()
                 ->get();
         }
 
-        return view('admin.dashboard', compact('guestWishes', 'myWishes'));
+        $counts = $this->guestWishCounts();
+
+        return view('admin.dashboard', compact('guestWishes', 'myWishes', 'filter', 'counts'));
+    }
+
+    /**
+     * Number of guest wishes per dashboard filter
+     */
+    private function guestWishCounts(): array
+    {
+        $perStatus = Wish::notOnWishNote()
+            ->selectRaw('status, count(*) as total')
+            ->groupBy('status')
+            ->pluck('total', 'status');
+
+        $count = fn (array $statuses) => (int) $perStatus->only($statuses)->sum();
+
+        return [
+            'all' => (int) $perStatus->sum(),
+            'open' => $count(Wish::OPEN_STATUSES),
+            'delivered' => $count([Wish::STATUS_DELIVERED]),
+            'packed' => $count([Wish::STATUS_PACKED]),
+            'unpacked' => $count([Wish::STATUS_UNPACKED]),
+        ];
     }
 
     public function store(AdminStoreWishRequest $request)
@@ -36,6 +60,8 @@ class AdminController extends Controller
 
         $wishData = $this->wishService->processWishData($request);
 
+        // Wishes added here always go on the owner's wish note
+        $wishData['receiver'] = Wish::owner();
         $wishData['is_public'] = true;
         $wishData['status'] = Wish::STATUS_IDEA;
 
@@ -88,6 +114,12 @@ class AdminController extends Controller
 
     public function togglePublic(Wish $wish)
     {
+        if (!$wish->canTogglePublic()) {
+            return back()->withErrors([
+                'is_public' => 'Auf den Wunschzettel kommen nur Wünsche von '.Wish::owner().'.',
+            ]);
+        }
+
         $wish->update(['is_public' => !$wish->is_public]);
         return back()->with('success', 'Status geändert!');
     }
