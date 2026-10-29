@@ -35,7 +35,7 @@ class AdminController extends Controller
     }
 
     /**
-     * Number of guest wishes per dashboard filter, "open" groups the same statuses as Wish::scopeOpen()
+     * Number of guest wishes per dashboard filter
      */
     private function guestWishCounts(): array
     {
@@ -48,7 +48,7 @@ class AdminController extends Controller
 
         return [
             'all' => (int) $perStatus->sum(),
-            'open' => $count([Wish::STATUS_IDEA, Wish::STATUS_OPEN, Wish::STATUS_ORDERED]),
+            'open' => $count(Wish::OPEN_STATUSES),
             'delivered' => $count([Wish::STATUS_DELIVERED]),
             'packed' => $count([Wish::STATUS_PACKED]),
             'unpacked' => $count([Wish::STATUS_UNPACKED]),
@@ -114,7 +114,7 @@ class AdminController extends Controller
 
     public function togglePublic(Wish $wish)
     {
-        if (!$wish->is_public && !$wish->belongsToOwner()) {
+        if (!$wish->canTogglePublic()) {
             return back()->withErrors([
                 'is_public' => 'Auf den Wunschzettel kommen nur Wünsche von '.Wish::owner().'.',
             ]);

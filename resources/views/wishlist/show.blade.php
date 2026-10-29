@@ -57,7 +57,7 @@
                         Nur Admin · von {{ $wish->receiver }} · {{ $wish->isOnWishNote() ? 'Auf dem Wunschzettel' : 'Nicht öffentlich' }}
                     </span>
                     <a href="{{ route('admin.wishes.edit', $wish) }}" class="btn btn-ghost">Bearbeiten</a>
-                    @if($wish->is_public || $wish->belongsToOwner())
+                    @if($wish->canTogglePublic())
                         <form method="POST" action="{{ route('admin.wishes.toggle', $wish) }}">
                             @csrf @method('PATCH')
                             <button type="submit" class="btn btn-ghost">

@@ -22,7 +22,7 @@ Laravel 13 on PHP 8.4, Pest 5, Vite 8 with Tailwind 4 and Alpine 3, Intervention
 ## Rules that are easy to break
 
 - **Admins only.** There is no registration. Login accepts only `is_admin` users (`LoginRequest`), and every admin, profile and password route uses the `admin` middleware (`EnsureUserIsAdmin`). Keep new authenticated routes behind `['auth', 'admin']`, since a remember-me cookie skips the login check.
-- **The public Wunschliste is only ever Tanja's wish note** (`config('wishbox.owner')`). Query it with `Wish::onWishNote()` (public and receiver = owner), never with `is_public` alone; guests get a 404 for anything else. Admin-added wishes always get the owner as receiver, and only the owner's wishes can be toggled public. No receiver labels in the public views.
+- **The public Wunschliste is only ever Tanja's wish note** (`config('wishbox.owner')`). Query it with `Wish::onWishNote()` (public and receiver = owner), never with `is_public` alone; guests get a 404 for anything else. Admin-added wishes always get the owner as receiver, wishes on the note keep her when edited, and only the owner's wishes can be toggled public (`Wish::canTogglePublic()`). No receiver labels in the public views.
 - **Receivers** come from `Wish::RECEIVERS`. `StoreWishRequest` validates against it, `AdminStoreWishRequest` also allows the current receiver of an existing wish. The wish form builds its receiver radios from the same list.
 - **`sortnr`** is an unsigned integer column cast to `int`. Order lists with `Wish::sorted()`.
 - **Statuses** are the `Wish::STATUS_*` constants; labels and badge colors live in `Wish::getStatuses()` and `status_color`.

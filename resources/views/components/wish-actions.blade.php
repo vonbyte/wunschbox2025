@@ -8,7 +8,7 @@
     </a>
 
     {{-- Only the owner's wishes can go on the public wish note --}}
-    @if($wish->is_public || $wish->belongsToOwner())
+    @if($wish->canTogglePublic())
     <form method="POST" action="{{ route('admin.wishes.toggle', $wish) }}">
         @csrf @method('PATCH')
         @if($wish->is_public)

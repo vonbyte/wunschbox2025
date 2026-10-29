@@ -24,6 +24,11 @@ class Wish extends Model
     const STATUS_UNPACKED = 'unpacked';
 
     /**
+     * Statuses of wishes nobody has delivered yet, the "Offen" filter on the dashboard
+     */
+    const OPEN_STATUSES = [self::STATUS_IDEA, self::STATUS_OPEN, self::STATUS_ORDERED];
+
+    /**
      * People guests can make a wish for
      */
     const RECEIVERS = ['Sonia', 'Tanja'];
@@ -84,6 +89,14 @@ class Wish extends Model
     public function belongsToOwner(): bool
     {
         return $this->receiver === self::owner();
+    }
+
+    /**
+     * Public wishes can always be made private, but only the owner's wishes can go on the wish note
+     */
+    public function canTogglePublic(): bool
+    {
+        return $this->is_public || $this->belongsToOwner();
     }
 
     /**
@@ -161,7 +174,7 @@ class Wish extends Model
      */
     public function scopeOpen($query)
     {
-        return $query->whereIn('status', ['open', 'idea', 'ordered'])
+        return $query->whereIn('status', self::OPEN_STATUSES)
             ->orderBy('created_at', 'desc');
     }
 
