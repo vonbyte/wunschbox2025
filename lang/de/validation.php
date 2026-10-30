@@ -1,10 +1,11 @@
 <?php
 
 // Only the messages of the wish form are translated; everything else falls back to English.
-// Custom messages apply to every validator with these field names, so keep them unique to wishes.
+// They are not under "custom", which would apply to every validator with these field names:
+// StoreWishRequest::messages() reads them from "wishes".
 return [
 
-    'custom' => [
+    'wishes' => [
         'title' => [
             'required' => 'Bitte einen Wunsch eintragen.',
             'string' => 'Bitte einen Wunsch eintragen.',
@@ -22,7 +23,7 @@ return [
             'uploaded' => 'Das Bild konnte nicht hochgeladen werden. Vielleicht ist es zu gross?',
             'image' => 'Das Bild muss ein JPG, PNG oder GIF sein.',
             'mimes' => 'Das Bild muss ein JPG, PNG oder GIF sein.',
-            'max' => 'Das Bild darf höchstens 10 MB gross sein.',
+            'max' => 'Das Bild darf höchstens :megabytes MB gross sein.',
         ],
         'example_links' => [
             'array' => 'Bitte die Links als Text eingeben, einen pro Zeile.',

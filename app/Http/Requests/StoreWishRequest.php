@@ -4,6 +4,7 @@ namespace App\Http\Requests;
 
 use App\Models\Wish;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Arr;
 use Illuminate\Validation\Rule;
 
 class StoreWishRequest extends FormRequest
@@ -57,5 +58,18 @@ class StoreWishRequest extends FormRequest
             // Only web links: anything else, like javascript: or data:, would end up in an href
             'example_links.*' => ['bail', 'string', 'max:2048', 'url:http,https'],
         ];
+    }
+
+    /**
+     * The German messages of the wish form, from "wishes" in lang/de/validation.php
+     *
+     * @return array<string, string>
+     */
+    public function messages(): array
+    {
+        $messages = trans('validation.wishes', ['megabytes' => self::IMAGE_MAX_KILOBYTES / 1000]);
+
+        // Without a translation, trans() returns the key and Laravel's own messages apply
+        return is_array($messages) ? Arr::dot($messages) : [];
     }
 }
