@@ -33,8 +33,7 @@
             <ul class="space-y-2">
                 @foreach($wish->example_links as $link)
                     <li>
-                        {{-- Links stored before they were validated may be anything, so only web links get an href --}}
-                        @if(in_array(strtolower((string) parse_url($link, PHP_URL_SCHEME)), ['http', 'https'], true))
+                        @if(\App\Models\Wish::isWebLink($link))
                             <a href="{{ $link }}" target="_blank" rel="noopener noreferrer"
                                class="card flex items-center gap-3 px-4 py-3 transition hover:border-pine focus-visible:outline-2 focus-visible:outline-pine">
                                 <svg class="size-5 shrink-0 text-pine" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">

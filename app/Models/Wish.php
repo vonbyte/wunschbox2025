@@ -33,6 +33,11 @@ class Wish extends Model
      */
     const RECEIVERS = ['Sonia', 'Tanja'];
 
+    /**
+     * URL schemes example links may have. Anything else, like javascript: or data:, must never end up in an href
+     */
+    const LINK_SCHEMES = ['http', 'https'];
+
     protected $fillable = [
         'title',
         'description',
@@ -61,6 +66,14 @@ class Wish extends Model
     public static function owner(): string
     {
         return config('wishbox.owner');
+    }
+
+    /**
+     * Whether a link may be shown as a link. Links stored before they were validated may be anything.
+     */
+    public static function isWebLink(string $link): bool
+    {
+        return in_array(strtolower((string) parse_url($link, PHP_URL_SCHEME)), self::LINK_SCHEMES, true);
     }
 
     /**

@@ -55,8 +55,7 @@ class StoreWishRequest extends FormRequest
             'description' => 'nullable|string|max:5000',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:'.self::IMAGE_MAX_KILOBYTES,
             'example_links' => ['nullable', 'array', 'max:10'],
-            // Only web links: anything else, like javascript: or data:, would end up in an href
-            'example_links.*' => ['bail', 'string', 'max:2048', 'url:http,https'],
+            'example_links.*' => ['bail', 'string', 'max:2048', 'url:'.implode(',', Wish::LINK_SCHEMES)],
         ];
     }
 
