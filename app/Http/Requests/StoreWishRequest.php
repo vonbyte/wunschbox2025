@@ -51,29 +51,4 @@ class StoreWishRequest extends FormRequest
             'example_links.*' => ['bail', 'string', 'max:2048', 'url:http,https'],
         ];
     }
-
-    /**
-     * @return array<string, string>
-     */
-    public function messages(): array
-    {
-        return [
-            'title.required' => 'Bitte einen Wunsch eintragen.',
-            'title.string' => 'Bitte einen Wunsch eintragen.',
-            'title.max' => 'Der Wunsch darf höchstens :max Zeichen lang sein.',
-            'receiver.required' => 'Bitte auswählen, von wem der Wunsch ist.',
-            'receiver.in' => 'Bitte auswählen, von wem der Wunsch ist.',
-            'description.string' => 'Bitte die Beschreibung als Text eingeben.',
-            'description.max' => 'Die Beschreibung darf höchstens :max Zeichen lang sein.',
-            'image.uploaded' => 'Das Bild konnte nicht hochgeladen werden. Vielleicht ist es zu gross?',
-            'image.image' => 'Das Bild muss ein JPG, PNG oder GIF sein.',
-            'image.mimes' => 'Das Bild muss ein JPG, PNG oder GIF sein.',
-            'image.max' => 'Das Bild darf höchstens 10 MB gross sein.',
-            'example_links.array' => 'Bitte die Links als Text eingeben, einen pro Zeile.',
-            'example_links.max' => 'Höchstens :max Links pro Wunsch.',
-            'example_links.*.string' => 'Bitte die Links als Text eingeben, einen pro Zeile.',
-            'example_links.*.max' => 'Ein Link darf höchstens :max Zeichen lang sein.',
-            'example_links.*.url' => 'Links müssen mit http:// oder https:// beginnen: :input',
-        ];
-    }
 }
