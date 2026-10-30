@@ -88,6 +88,7 @@
             id="description"
             name="description"
             rows="3"
+            maxlength="5000"
             class="{{ $field }} resize-none"
             placeholder="{{ $isAdmin ? 'Beschreibung eingeben …' : 'Farbe, Grösse, wo es das gibt …' }}">{{ old('description', $wish?->description) }}</textarea>
         @error('description', $errorBag)

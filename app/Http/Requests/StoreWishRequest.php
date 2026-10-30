@@ -44,7 +44,7 @@ class StoreWishRequest extends FormRequest
         return [
             'title' => 'required|string|max:255',
             'receiver' => ['required', Rule::in(Wish::RECEIVERS)],
-            'description' => 'nullable|string',
+            'description' => 'nullable|string|max:5000',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:10000',
             'example_links' => ['nullable', 'array', 'max:10'],
             // Only web links: anything else, like javascript: or data:, would end up in an href
@@ -58,6 +58,7 @@ class StoreWishRequest extends FormRequest
     public function messages(): array
     {
         return [
+            'description.max' => 'Die Beschreibung darf höchstens :max Zeichen lang sein.',
             'example_links.array' => 'Bitte die Links als Text eingeben, einen pro Zeile.',
             'example_links.max' => 'Höchstens :max Links pro Wunsch.',
             'example_links.*.string' => 'Bitte die Links als Text eingeben, einen pro Zeile.',
