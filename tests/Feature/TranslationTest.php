@@ -69,3 +69,42 @@ test('the admin area follows the locale', function () {
         ->patch(route('admin.wishes.update-status', $wish), ['status' => Wish::STATUS_DELIVERED])
         ->assertSessionHas('success', 'Status updated!');
 });
+
+test('login and password reset are German', function () {
+    Illuminate\Support\Facades\Notification::fake();
+    $admin = App\Models\User::factory()->admin()->create();
+
+    $this->get(route('login'))->assertSee(['Anmelden', 'Angemeldet bleiben', 'Passwort vergessen?']);
+    $this->get(route('password.request'))->assertSee(['Passwort vergessen? Kein Problem.', 'Link zum Zurücksetzen schicken']);
+
+    $this->post(route('login'), ['email' => $admin->email, 'password' => 'falsch'])
+        ->assertSessionHasErrors(['email' => 'Diese Zugangsdaten stimmen nicht.']);
+    $this->post(route('password.email'), ['email' => $admin->email])
+        ->assertSessionHas('status', 'Der Link zum Zurücksetzen ist per E-Mail unterwegs.');
+
+    Illuminate\Support\Facades\Notification::assertSentTo($admin, Illuminate\Auth\Notifications\ResetPassword::class, function ($notification) use ($admin) {
+        $mail = $notification->toMail($admin);
+
+        return $mail->subject === 'Passwort zurücksetzen' && $mail->actionText === 'Passwort zurücksetzen';
+    });
+
+    app()->setLocale('en');
+
+    $this->get(route('login'))->assertSee(['Log in', 'Remember me'])->assertDontSee('Angemeldet bleiben');
+});
+
+test('validation and error pages outside the wish form are German', function () {
+    $admin = App\Models\User::factory()->admin()->create();
+
+    $this->actingAs($admin)
+        ->put(route('password.update'), ['current_password' => 'falsch', 'password' => 'kurz', 'password_confirmation' => 'anders'])
+        ->assertSessionHasErrorsIn('updatePassword', [
+            'current_password' => 'Das Passwort ist falsch.',
+            'password' => 'Passwort und Bestätigung stimmen nicht überein.',
+        ]);
+    $this->actingAs($admin)
+        ->patch(route('profile.update'), ['name' => '', 'email' => 'keine-adresse'])
+        ->assertSessionHasErrors(['name' => 'Bitte Name ausfüllen.', 'email' => 'E-Mail muss eine gültige E-Mail-Adresse sein.']);
+
+    $this->get('/gibt-es-nicht')->assertNotFound()->assertSee('Nicht gefunden');
+});

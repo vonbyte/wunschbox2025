@@ -1,9 +1,37 @@
 <?php
 
-// Only the messages of the wish form are translated; everything else falls back to English.
-// They are not under "custom", which would apply to every validator with these field names:
-// StoreWishRequest::messages() reads them from "wishes".
+// German lines for the rules the app uses; any other rule falls back to English.
+// The wish form has its own messages under "wishes", not under "custom", which would apply
+// to every validator with these field names: StoreWishRequest::messages() reads them.
 return [
+
+    'confirmed' => ':attribute und Bestätigung stimmen nicht überein.',
+    'current_password' => 'Das Passwort ist falsch.',
+    'email' => ':attribute muss eine gültige E-Mail-Adresse sein.',
+    'in' => 'Der gewählte Wert für :attribute ist ungültig.',
+    'integer' => ':attribute muss eine ganze Zahl sein.',
+    'lowercase' => ':attribute darf nur Kleinbuchstaben enthalten.',
+    'max' => [
+        'numeric' => ':attribute darf höchstens :max sein.',
+        'string' => ':attribute darf höchstens :max Zeichen lang sein.',
+    ],
+    'min' => [
+        'numeric' => ':attribute muss mindestens :min sein.',
+        'string' => ':attribute muss mindestens :min Zeichen lang sein.',
+    ],
+    'required' => 'Bitte :attribute ausfüllen.',
+    'string' => ':attribute muss ein Text sein.',
+    'unique' => 'Diese :attribute ist schon vergeben.',
+
+    'attributes' => [
+        'current_password' => 'aktuelles Passwort',
+        'email' => 'E-Mail',
+        'name' => 'Name',
+        'package_nr' => 'Päckchen-Nummer',
+        'password' => 'Passwort',
+        'sortnr' => 'Sortierung',
+        'status' => 'Status',
+    ],
 
     'wishes' => [
         'title' => [
