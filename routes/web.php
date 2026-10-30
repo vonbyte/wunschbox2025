@@ -7,6 +7,7 @@ Route::get('/', [App\Http\Controllers\WishboxController::class, 'index'])
     ->name('wishbox');
 Route::post('/wishbox',
     [App\Http\Controllers\WishboxController::class, 'store'])
+    ->middleware('throttle:wishbox')
     ->name('wishbox.store');
 
 Route::get('/wishlist',
