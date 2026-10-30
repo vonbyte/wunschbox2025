@@ -127,7 +127,12 @@ class AdminController extends Controller
     public function destroy(Wish $wish)
     {
         $this->wishService->deleteWish($wish);
-        return back()->with('success', 'Wunsch dauerhaft gelöscht!');
+
+        // Back to the dashboard with its filter; from the detail page back() would lead to the deleted wish
+        $previous = url()->previous();
+        $target = strtok($previous, '?') === route('admin.index') ? $previous : route('admin.index');
+
+        return redirect()->to($target)->with('success', __('Wish deleted for good!'));
     }
 
     public function updatePackageNr(Request $request, Wish $wish) {
