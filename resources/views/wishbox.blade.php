@@ -22,6 +22,10 @@
         </div>
     @endif
 
+    @error('throttle')
+        <div class="flash-error" role="alert">{{ $message }}</div>
+    @enderror
+
     <x-wish-form
         :action="route('wishbox.store')"
         submit-text="Ab in die Box!"
