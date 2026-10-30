@@ -24,6 +24,28 @@ test('a wish without links stores no links', function (?string $links) {
     expect(Wish::firstWhere('title', 'Ohne Links')->example_links)->toBeNull();
 })->with([null, '', ' , ']);
 
+test('commas inside a link are kept', function () {
+    $this->post(route('wishbox.store'), [
+        'title' => 'Socken',
+        'receiver' => 'Sonia',
+        'example_links' => "https://www.example.ch/socken?farben=rot,blau, https://example.com/b,\nhttps://example.com/c/1,2,3",
+    ])->assertSessionHasNoErrors();
+
+    expect(Wish::firstWhere('title', 'Socken')->example_links)->toBe([
+        'https://www.example.ch/socken?farben=rot,blau',
+        'https://example.com/b',
+        'https://example.com/c/1,2,3',
+    ]);
+});
+
+test('a comma before another scheme still splits, so the second link is checked on its own', function () {
+    $this->post(route('wishbox.store'), [
+        'title' => 'Böser Link',
+        'receiver' => 'Sonia',
+        'example_links' => 'https://example.com/ok,javascript:alert(1)',
+    ])->assertSessionHasErrors('example_links.1');
+});
+
 test('only http and https links are accepted', function (string $link) {
     $this->post(route('wishbox.store'), [
         'title' => 'Böser Link',

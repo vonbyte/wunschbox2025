@@ -27,7 +27,9 @@ class StoreWishRequest extends FormRequest
         if (is_string($links)) {
             $this->merge([
                 'example_links' => array_values(array_filter(
-                    array_map('trim', preg_split('/[\r\n,]+/', $links)),
+                    // A comma only separates links when the next one starts with a scheme,
+                    // so commas inside a link (?farben=rot,blau) stay; stray ones at the ends go
+                    array_map(fn ($link) => trim($link, " \t,"), preg_split('/[\r\n]+|,\s*(?=[a-z][a-z0-9+.-]*:)/i', $links)),
                     fn ($link) => $link !== ''
                 )),
             ]);
