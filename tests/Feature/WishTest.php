@@ -13,7 +13,7 @@ function checkedReceiver(string $receiver): string
 }
 
 test('edit form preselects the receiver of the wish', function () {
-    $admin = User::factory()->create(['is_admin' => true]);
+    $admin = User::factory()->admin()->create();
     $wish = Wish::factory()->create(['receiver' => 'Tanja']);
 
     $response = $this->actingAs($admin)->get(route('admin.wishes.edit', $wish));
@@ -24,7 +24,7 @@ test('edit form preselects the receiver of the wish', function () {
 });
 
 test('edit form keeps a receiver outside the default list selected', function () {
-    $admin = User::factory()->create(['is_admin' => true]);
+    $admin = User::factory()->admin()->create();
     $wish = Wish::factory()->create(['receiver' => 'Tanja B.']);
 
     $this->actingAs($admin)
@@ -35,7 +35,7 @@ test('edit form keeps a receiver outside the default list selected', function ()
 });
 
 test('updating a wish keeps its receiver', function () {
-    $admin = User::factory()->create(['is_admin' => true]);
+    $admin = User::factory()->admin()->create();
     $wish = Wish::factory()->create(['receiver' => 'Tanja', 'title' => 'Alt']);
 
     $this->actingAs($admin)
@@ -51,7 +51,7 @@ test('updating a wish keeps its receiver', function () {
 });
 
 test('sort number of a public wish can be updated', function () {
-    $admin = User::factory()->create(['is_admin' => true]);
+    $admin = User::factory()->admin()->create();
     $wish = Wish::factory()->create(['is_public' => true]);
 
     $this->actingAs($admin)
@@ -62,7 +62,7 @@ test('sort number of a public wish can be updated', function () {
 });
 
 test('sort numbers order numerically', function () {
-    $admin = User::factory()->create(['is_admin' => true]);
+    $admin = User::factory()->admin()->create();
     $ten = Wish::factory()->onWishNote()->create(['title' => 'Zehn']);
     $five = Wish::factory()->onWishNote()->create(['title' => 'Fünf']);
 
@@ -73,7 +73,7 @@ test('sort numbers order numerically', function () {
 });
 
 test('sort number must be a whole number from 0', function (string $sortnr) {
-    $admin = User::factory()->create(['is_admin' => true]);
+    $admin = User::factory()->admin()->create();
     $wish = Wish::factory()->onWishNote()->create(['sortnr' => 3]);
 
     $this->actingAs($admin)
@@ -84,7 +84,7 @@ test('sort number must be a whole number from 0', function (string $sortnr) {
 })->with(['abc', '-1', '1.5', '']);
 
 test('invalid quick edits show an error on the dashboard', function () {
-    $admin = User::factory()->create(['is_admin' => true]);
+    $admin = User::factory()->admin()->create();
     $wish = Wish::factory()->create();
 
     $this->actingAs($admin)
@@ -141,7 +141,7 @@ test('public wishlist is ordered by sort number', function () {
 });
 
 test('admin list of my wishes is ordered by sort number', function () {
-    $admin = User::factory()->create(['is_admin' => true]);
+    $admin = User::factory()->admin()->create();
     createPublicWishesInMixedOrder();
 
     $this->actingAs($admin)
@@ -197,7 +197,7 @@ test('backfill migration covers more wishes than one chunk', function () {
 });
 
 test('open filter only shows open guest wishes', function () {
-    $admin = User::factory()->create(['is_admin' => true]);
+    $admin = User::factory()->admin()->create();
     Wish::factory()->create(['status' => 'idea', 'title' => 'Gast Idee']);
     Wish::factory()->create(['status' => 'ordered', 'title' => 'Gast Bestellt']);
     Wish::factory()->create(['status' => 'packed', 'title' => 'Gast Verpackt']);
@@ -240,7 +240,7 @@ test('guests can only pick receivers from the list', function () {
 });
 
 test('admins can keep a receiver outside the list but not set a new one', function () {
-    $admin = User::factory()->create(['is_admin' => true]);
+    $admin = User::factory()->admin()->create();
     $wish = Wish::factory()->create(['receiver' => 'Tanja B.']);
 
     $this->actingAs($admin)

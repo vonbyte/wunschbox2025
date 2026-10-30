@@ -3,9 +3,12 @@
 use App\Models\User;
 use App\Models\Wish;
 
-test('admin wishes always go on the owner\'s wish note', function () {
+beforeEach(function () {
     config(['wishbox.owner' => 'Tanja']);
-    $admin = User::factory()->create(['is_admin' => true, 'name' => 'Sonia']);
+});
+
+test('admin wishes always go on the owner\'s wish note', function () {
+    $admin = User::factory()->admin()->create(['name' => 'Sonia']);
 
     $this->actingAs($admin)
         ->post(route('admin.wishes.store'), ['title' => 'Für Sonia?', 'receiver' => 'Sonia'])
@@ -17,7 +20,6 @@ test('admin wishes always go on the owner\'s wish note', function () {
 });
 
 test('the public wish note never shows wishes of other receivers', function () {
-    config(['wishbox.owner' => 'Tanja']);
     Wish::factory()->onWishNote()->create(['title' => 'Tanjas Wunsch']);
     Wish::factory()->create(['is_public' => true, 'receiver' => 'Sonia', 'title' => 'Sonias Wunsch']);
 
@@ -28,7 +30,6 @@ test('the public wish note never shows wishes of other receivers', function () {
 });
 
 test('guests cannot open public wishes of other receivers', function () {
-    config(['wishbox.owner' => 'Tanja']);
     $wish = Wish::factory()->create(['is_public' => true, 'receiver' => 'Sonia']);
 
     $this->get(route('wish.show', $wish))->assertNotFound();
@@ -39,7 +40,6 @@ test('guests cannot open public wishes of other receivers', function () {
 });
 
 test('only wishes of the owner can be put on the wish note', function () {
-    config(['wishbox.owner' => 'Tanja']);
     $admin = User::factory()->admin()->create();
     $sonia = Wish::factory()->create(['is_public' => false, 'receiver' => 'Sonia']);
     $tanja = Wish::factory()->create(['is_public' => false, 'receiver' => 'Tanja']);
@@ -56,7 +56,6 @@ test('only wishes of the owner can be put on the wish note', function () {
 });
 
 test('public wishes of other receivers can still be made private', function () {
-    config(['wishbox.owner' => 'Tanja']);
     $wish = Wish::factory()->create(['is_public' => true, 'receiver' => 'Sonia']);
 
     $this->actingAs(User::factory()->admin()->create())
@@ -67,7 +66,6 @@ test('public wishes of other receivers can still be made private', function () {
 });
 
 test('public admin wishes with an admin name as receiver move to the owner', function () {
-    config(['wishbox.owner' => 'Tanja']);
     $adminWish = Wish::factory()->create(['is_public' => true, 'receiver' => 'Tanja B.']);
     $privateWish = Wish::factory()->create(['is_public' => false, 'receiver' => 'Max Muster']);
     $soniasWish = Wish::factory()->create(['is_public' => true, 'receiver' => 'Sonia']);
@@ -81,7 +79,6 @@ test('public admin wishes with an admin name as receiver move to the owner', fun
 });
 
 test('wishes on the wish note keep the owner as receiver when edited', function () {
-    config(['wishbox.owner' => 'Tanja']);
     $admin = User::factory()->admin()->create();
     $wish = Wish::factory()->onWishNote()->create(['title' => 'Kopfhörer']);
 
@@ -98,7 +95,6 @@ test('wishes on the wish note keep the owner as receiver when edited', function 
 });
 
 test('guest wishes can still change their receiver', function () {
-    config(['wishbox.owner' => 'Tanja']);
     $admin = User::factory()->admin()->create();
     $wish = Wish::factory()->create(['is_public' => false, 'receiver' => 'Tanja']);
 
