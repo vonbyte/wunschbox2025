@@ -2,6 +2,7 @@
 
 use App\Models\User;
 use App\Models\Wish;
+use Illuminate\Http\UploadedFile;
 
 test('a description may have up to 5000 characters', function () {
     $this->post(route('wishbox.store'), [
@@ -27,4 +28,40 @@ test('admins can not save longer descriptions either', function () {
     $this->actingAs(User::factory()->admin()->create())
         ->post(route('admin.wishes.store'), ['title' => 'Neu', 'description' => str_repeat('a', 5001)])
         ->assertSessionHasErrorsIn('addWish', 'description');
+});
+
+test('the wish form shows German messages', function (array $input, string $field, string $message) {
+    $this->post(route('wishbox.store'), [...['title' => 'Schlitten', 'receiver' => 'Sonia'], ...$input])
+        ->assertSessionHasErrors([$field => $message]);
+})->with([
+    'no title' => [['title' => ''], 'title', 'Bitte einen Wunsch eintragen.'],
+    'long title' => [['title' => str_repeat('a', 256)], 'title', 'Der Wunsch darf höchstens 255 Zeichen lang sein.'],
+    'no receiver' => [['receiver' => ''], 'receiver', 'Bitte auswählen, von wem der Wunsch ist.'],
+    'unknown receiver' => [['receiver' => 'Rudolph'], 'receiver', 'Bitte auswählen, von wem der Wunsch ist.'],
+    'no image' => [fn () => ['image' => UploadedFile::fake()->create('wunsch.pdf', 10, 'application/pdf')], 'image', 'Das Bild muss ein JPG, PNG oder GIF sein.'],
+    'webp image' => [fn () => ['image' => UploadedFile::fake()->image('wunsch.webp')], 'image', 'Das Bild muss ein JPG, PNG oder GIF sein.'],
+    'large image' => [fn () => ['image' => UploadedFile::fake()->image('wunsch.jpg')->size(10001)], 'image', 'Das Bild darf höchstens 10 MB gross sein.'],
+    'failed upload' => [fn () => ['image' => new UploadedFile(UploadedFile::fake()->image('wunsch.jpg')->getPathname(), 'wunsch.jpg', 'image/jpeg', UPLOAD_ERR_INI_SIZE, true)], 'image', 'Das Bild konnte nicht hochgeladen werden. Vielleicht ist es zu gross?'],
+]);
+
+test('no message on the wish form is English or has a placeholder left', function () {
+    $this->post(route('wishbox.store'), [
+        'title' => ['kein Text'],
+        'receiver' => ['kein Text'],
+        'description' => ['kein Text'],
+        'image' => 'kein Bild',
+        'example_links' => [['kein Text'], 'kein Link'],
+    ]);
+
+    // The session stores the error bags as arrays (JSON serialization)
+    $messages = collect(session('errors')['default']['messages'])->flatten();
+
+    expect($messages)->not->toBeEmpty()
+        ->and($messages->filter(fn ($message) => str_starts_with($message, 'The ') || str_contains($message, ':input')))->toBeEmpty();
+});
+
+test('the file picker offers only the accepted image types', function () {
+    $this->get(route('wishbox'))
+        ->assertOk()
+        ->assertSee('accept="image/jpeg,image/png,image/gif"', false);
 });

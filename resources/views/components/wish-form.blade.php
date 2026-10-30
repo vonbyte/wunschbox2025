@@ -120,11 +120,12 @@
                     <span class="block font-hand text-2xl text-ink" x-text="name ?? @js($wish?->image ? 'Bild ersetzen?' : 'Foto dazu?')">{{ $wish?->image ? 'Bild ersetzen?' : 'Foto dazu?' }}</span>
                     <span class="block text-sm text-ink-muted" x-text="name ? 'Tippen zum Ändern' : 'Tippen zum Anheften'">Tippen zum Anheften</span>
                 </span>
+                {{-- Only the types the request accepts; iPhones then send their HEIC photos as JPEG --}}
                 <input
                     type="file"
                     id="image"
                     name="image"
-                    accept="image/*"
+                    accept="image/jpeg,image/png,image/gif"
                     class="sr-only"
                     @change="const file = $event.target.files[0]; if (preview) URL.revokeObjectURL(preview); preview = file ? URL.createObjectURL(file) : null; name = file?.name ?? null">
             </label>
