@@ -16,6 +16,8 @@
     $field = $isAdmin ? 'field-box' : 'field-line';
     $label = $isAdmin ? 'block text-sm font-bold text-ink mb-1' : 'label-caps mb-1';
     $optional = '<span class="font-normal normal-case tracking-normal text-ink-muted">(optional)</span>';
+    // Old input is what was sent, so a crafted request can bring lists where text belongs
+    $oldText = fn (string $key, ?string $default) => is_array($value = old($key, $default)) ? '' : $value;
 @endphp
 
 <form method="POST" action="{{ $action }}" enctype="multipart/form-data" {{ $attributes->merge(['class' => 'space-y-6']) }}>
@@ -70,7 +72,7 @@
             type="text"
             id="title"
             name="title"
-            value="{{ old('title', $wish?->title) }}"
+            value="{{ $oldText('title', $wish?->title) }}"
             required
             class="{{ $field }}"
             placeholder="{{ $isAdmin ? 'Titel eingeben …' : 'eine Kuscheldecke, ein Buch, Kopfhörer …' }}">
@@ -88,8 +90,9 @@
             id="description"
             name="description"
             rows="3"
+            maxlength="5000"
             class="{{ $field }} resize-none"
-            placeholder="{{ $isAdmin ? 'Beschreibung eingeben …' : 'Farbe, Grösse, wo es das gibt …' }}">{{ old('description', $wish?->description) }}</textarea>
+            placeholder="{{ $isAdmin ? 'Beschreibung eingeben …' : 'Farbe, Grösse, wo es das gibt …' }}">{{ $oldText('description', $wish?->description) }}</textarea>
         @error('description', $errorBag)
         <p class="field-error">{{ $message }}</p>
         @enderror
@@ -119,11 +122,12 @@
                     <span class="block font-hand text-2xl text-ink" x-text="name ?? @js($wish?->image ? 'Bild ersetzen?' : 'Foto dazu?')">{{ $wish?->image ? 'Bild ersetzen?' : 'Foto dazu?' }}</span>
                     <span class="block text-sm text-ink-muted" x-text="name ? 'Tippen zum Ändern' : 'Tippen zum Anheften'">Tippen zum Anheften</span>
                 </span>
+                {{-- Only the types the request accepts; iPhones then send their HEIC photos as JPEG --}}
                 <input
                     type="file"
                     id="image"
                     name="image"
-                    accept="image/*"
+                    accept="image/jpeg,image/png,image/gif"
                     class="sr-only"
                     @change="const file = $event.target.files[0]; if (preview) URL.revokeObjectURL(preview); preview = file ? URL.createObjectURL(file) : null; name = file?.name ?? null">
             </label>
@@ -135,6 +139,8 @@
 
     <!-- Example Links (conditional) -->
     @if($showLinks)
+        {{-- Old input is the text as typed; links of a stored wish are a list --}}
+        @php($links = old('example_links', $wish?->example_links))
         <div>
             <label for="example_links" class="{{ $label }}">
                 Links {!! $optional !!}
@@ -144,9 +150,10 @@
                 name="example_links"
                 rows="2"
                 class="{{ $field }} resize-none"
-                placeholder="https://…">{{ old('example_links', $wish?->example_links ? implode("\n", $wish->example_links) : '') }}</textarea>
+                placeholder="https://…">{{ is_array($links) ? implode("\n", array_filter($links, 'is_string')) : $links }}</textarea>
             <p class="mt-1 text-sm text-ink-muted">Ein Link pro Zeile oder kommagetrennt</p>
-            @error('example_links', $errorBag)
+            {{-- Errors of single links come as example_links.0, example_links.1, … --}}
+            @error('example_links*', $errorBag)
             <p class="field-error">{{ $message }}</p>
             @enderror
         </div>

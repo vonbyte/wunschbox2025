@@ -31,16 +31,21 @@
             <ul class="space-y-2">
                 @foreach($wish->example_links as $link)
                     <li>
-                        <a href="{{ $link }}" target="_blank" rel="noopener noreferrer"
-                           class="card flex items-center gap-3 px-4 py-3 transition hover:border-pine focus-visible:outline-2 focus-visible:outline-pine">
-                            <svg class="size-5 shrink-0 text-pine" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
-                            </svg>
-                            <span class="min-w-0 flex-1">
-                                <span class="block font-bold">{{ Str::after(parse_url($link, PHP_URL_HOST) ?? $link, 'www.') }}</span>
-                                <span class="block truncate text-sm text-ink-muted">{{ $link }}</span>
-                            </span>
-                        </a>
+                        {{-- Links stored before they were validated may be anything, so only web links get an href --}}
+                        @if(in_array(strtolower((string) parse_url($link, PHP_URL_SCHEME)), ['http', 'https'], true))
+                            <a href="{{ $link }}" target="_blank" rel="noopener noreferrer"
+                               class="card flex items-center gap-3 px-4 py-3 transition hover:border-pine focus-visible:outline-2 focus-visible:outline-pine">
+                                <svg class="size-5 shrink-0 text-pine" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+                                </svg>
+                                <span class="min-w-0 flex-1">
+                                    <span class="block font-bold">{{ Str::after(parse_url($link, PHP_URL_HOST) ?? $link, 'www.') }}</span>
+                                    <span class="block truncate text-sm text-ink-muted">{{ $link }}</span>
+                                </span>
+                            </a>
+                        @else
+                            <span class="card block truncate px-4 py-3 text-sm text-ink-muted">{{ $link }}</span>
+                        @endif
                     </li>
                 @endforeach
             </ul>
