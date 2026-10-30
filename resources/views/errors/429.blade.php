@@ -1,16 +1,16 @@
-<x-public-layout title="Kurz durchatmen · Wunschbox">
+<x-public-layout :title="__('Take a breath').' · Wunschbox'">
     <x-slot:header>
-        <h1 class="-rotate-2 font-hand text-6xl font-bold leading-none text-paper lg:text-7xl">Kurz durchatmen</h1>
-        <p class="mt-2 text-pine-muted">Die Rentiere kommen mit dem Tragen nicht nach.</p>
+        <h1 class="-rotate-2 font-hand text-6xl font-bold leading-none text-paper lg:text-7xl">{{ __('Take a breath') }}</h1>
+        <p class="mt-2 text-pine-muted">{{ __('The reindeer cannot keep up with the carrying.') }}</p>
     </x-slot:header>
 
     <p class="text-lg leading-relaxed">
-        Es sind gerade sehr viele Wünsche auf einmal angekommen. Bitte warte ein paar Minuten und versuch es dann noch einmal.
+        {{ __('A lot of wishes arrived at once. Please wait a few minutes and try again.') }}
     </p>
 
     <p class="mt-8">
         <a href="{{ route('wishbox') }}" class="font-bold text-pine underline underline-offset-4 hover:text-pine-dark">
-            Zurück zur Wunschbox
+            {{ __('Back to the wishbox') }}
         </a>
     </p>
 </x-public-layout>
