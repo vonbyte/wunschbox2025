@@ -2,9 +2,11 @@
 
 namespace App\Services;
 
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
-use Intervention\Image\ImageManager;
 use Intervention\Image\Drivers\Gd\Driver;
+use Intervention\Image\ImageManager;
+use RuntimeException;
 
 class ImageService
 {
@@ -12,42 +14,39 @@ class ImageService
 
     public function __construct()
     {
-        $this->imageManager = new ImageManager(new Driver());
+        // Only the first frame of animated GIFs: every frame costs as much memory as a whole image
+        $this->imageManager = new ImageManager(new Driver(), decodeAnimation: false);
     }
 
     /**
-     * Store image and create thumbnail
+     * Store image and create thumbnail. Both are decoded and encoded before anything is written,
+     * so an upload GD can not read leaves no file behind.
      *
      * @return array ['original' => 'path/to/original.jpg', 'thumbnail' => 'path/to/thumb.jpg']
+     *
+     * @throws \Intervention\Image\Exceptions\DecoderException when GD can not read the upload
      */
-    public function storeWithThumbnail($uploadedFile): array
+    public function storeWithThumbnail(UploadedFile $uploadedFile): array
     {
-        // Store original image (max 1920px width)
-        $originalPath = $uploadedFile->store('wishes', 'public');
-        $fullPath = Storage::disk('public')->path($originalPath);
-
-        // Resize original if too large
-        $image = $this->imageManager->decodePath($fullPath);
+        $image = $this->imageManager->decodePath($uploadedFile->getRealPath());
 
         // Max dimensions for original: 1920x1080
-        if ($image->width() > 1920 || $image->height() > 1080) {
-            $image->scale(width: 1920, height: 1080);
-            $image->save($fullPath, quality: 85);
-        } else {
-            // Re-save with compression
-            $image->save($fullPath, quality: 85);
-        }
+        $image->scaleDown(width: 1920, height: 1080);
 
-        // Create thumbnail (400x300)
-        $thumbnail = $this->imageManager->decodePath($fullPath);
-        $thumbnail->cover(400, 300); // Crop to exact size
-
+        $originalPath = 'wishes/'.$uploadedFile->hashName();
         $thumbnailPath = $this->getThumbnailPath($originalPath);
 
-        Storage::disk('public')->put(
-            $thumbnailPath,
-            (string) $thumbnail->encode()
-        );
+        $original = $image->encodeUsingPath($originalPath, quality: 85);
+        // Create thumbnail (400x300)
+        $thumbnail = (clone $image)->cover(400, 300)->encodeUsingPath($thumbnailPath);
+
+        $disk = Storage::disk('public');
+
+        if (!$disk->put($originalPath, (string) $original) || !$disk->put($thumbnailPath, (string) $thumbnail)) {
+            $disk->delete([$originalPath, $thumbnailPath]);
+
+            throw new RuntimeException("Could not store the image {$originalPath}.");
+        }
 
         return [
             'original' => $originalPath,

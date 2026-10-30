@@ -24,6 +24,8 @@ return [
             'image' => 'Das Bild muss ein JPG, PNG oder GIF sein.',
             'mimes' => 'Das Bild muss ein JPG, PNG oder GIF sein.',
             'max' => 'Das Bild darf höchstens :megabytes MB gross sein.',
+            'pixels' => 'Das Bild hat zu viele Pixel, höchstens :megapixels Megapixel. Bitte nimm ein kleineres Foto.',
+            'unreadable' => 'Das Bild konnte nicht gelesen werden. Bitte nimm ein anderes Foto.',
         ],
         'example_links' => [
             'array' => 'Bitte die Links als Text eingeben, einen pro Zeile.',

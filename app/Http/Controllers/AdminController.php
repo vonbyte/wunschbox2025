@@ -79,9 +79,7 @@ class AdminController extends Controller
     public function update(AdminStoreWishRequest $request, Wish $wish)
     {
 
-        $wishData = $this->wishService->processWishData($request, $wish);
-
-        $wish->update($wishData);
+        $this->wishService->updateWish($wish, $this->wishService->processWishData($request));
 
         return redirect()
             ->route('admin.index')

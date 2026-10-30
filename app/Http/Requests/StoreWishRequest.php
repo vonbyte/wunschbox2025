@@ -3,7 +3,9 @@
 namespace App\Http\Requests;
 
 use App\Models\Wish;
+use Closure;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Arr;
 use Illuminate\Validation\Rule;
 
@@ -13,6 +15,12 @@ class StoreWishRequest extends FormRequest
      * Largest image guests may upload; PHP's upload_max_filesize and post_max_size must allow it
      */
     public const int IMAGE_MAX_KILOBYTES = 10000;
+
+    /**
+     * GD needs about 4 bytes per pixel, so a small file with huge dimensions would exhaust the memory.
+     * 50 megapixels take about 200 MB and still allow full size photos of 48 megapixel phone cameras.
+     */
+    public const int IMAGE_MAX_MEGAPIXELS = 50;
 
     /**
      * Determine if the user is authorized to make this request.
@@ -53,10 +61,32 @@ class StoreWishRequest extends FormRequest
             'title' => 'required|string|max:255',
             'receiver' => ['required', Rule::in(Wish::RECEIVERS)],
             'description' => 'nullable|string|max:5000',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:'.self::IMAGE_MAX_KILOBYTES,
+            'image' => ['bail', 'nullable', 'image', 'mimes:jpeg,png,jpg,gif', 'max:'.self::IMAGE_MAX_KILOBYTES, $this->checkPixels(...)],
             'example_links' => ['nullable', 'array', 'max:10'],
             'example_links.*' => ['bail', 'string', 'max:2048', 'url:'.implode(',', Wish::LINK_SCHEMES)],
         ];
+    }
+
+    /**
+     * Reads only the header of the image, before GD decodes the whole picture
+     */
+    protected function checkPixels(string $attribute, mixed $value, Closure $fail): void
+    {
+        $size = $value instanceof UploadedFile ? @getimagesize($value->getRealPath()) : false;
+
+        if ($size === false) {
+            $fail(__('validation.wishes.image.unreadable'));
+        } elseif ($size[0] * $size[1] > self::IMAGE_MAX_MEGAPIXELS * 1_000_000) {
+            $fail(__('validation.wishes.image.pixels', ['megapixels' => self::IMAGE_MAX_MEGAPIXELS]));
+        }
+    }
+
+    /**
+     * The error bag of this form, for errors found after the validation
+     */
+    public function errorBagName(): string
+    {
+        return $this->errorBag;
     }
 
     /**
