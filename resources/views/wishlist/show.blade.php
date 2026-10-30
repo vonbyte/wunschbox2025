@@ -1,11 +1,13 @@
 <x-public-layout :title="$wish->title.' · Wunschzettel'">
     <x-slot:header>
-        <a href="{{ auth()->check() ? route('admin.index') : route('wishlist') }}"
+        {{-- Users without admin role (an old remember-me cookie) would get a 403 in the admin area --}}
+        @php($isAdmin = (bool) auth()->user()?->isAdmin())
+        <a href="{{ $isAdmin ? route('admin.index') : route('wishlist') }}"
            class="mb-3 inline-flex items-center gap-1.5 text-sm font-bold text-pine-muted hover:text-white">
             <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7 7-7M3 12h18"/>
             </svg>
-            {{ auth()->check() ? 'Zurück zum Admin' : 'Zurück zum Wunschzettel' }}
+            {{ $isAdmin ? 'Zurück zum Admin' : 'Zurück zum Wunschzettel' }}
         </a>
         <h1 class="-rotate-1 font-hand text-5xl font-bold leading-none text-paper lg:text-6xl">{{ $wish->title }}</h1>
     </x-slot:header>
