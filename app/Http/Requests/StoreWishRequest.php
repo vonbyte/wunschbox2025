@@ -9,6 +9,11 @@ use Illuminate\Validation\Rule;
 class StoreWishRequest extends FormRequest
 {
     /**
+     * Largest image guests may upload; PHP's upload_max_filesize and post_max_size must allow it
+     */
+    public const int IMAGE_MAX_KILOBYTES = 10000;
+
+    /**
      * Determine if the user is authorized to make this request.
      */
     public function authorize(): bool
@@ -47,7 +52,7 @@ class StoreWishRequest extends FormRequest
             'title' => 'required|string|max:255',
             'receiver' => ['required', Rule::in(Wish::RECEIVERS)],
             'description' => 'nullable|string|max:5000',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:10000',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:'.self::IMAGE_MAX_KILOBYTES,
             'example_links' => ['nullable', 'array', 'max:10'],
             // Only web links: anything else, like javascript: or data:, would end up in an href
             'example_links.*' => ['bail', 'string', 'max:2048', 'url:http,https'],

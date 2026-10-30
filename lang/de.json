@@ -1,4 +1,8 @@
 {
     "A lot of wishes arrived at once. Please wait one minute and send your wish again.|A lot of wishes arrived at once. Please wait :count minutes and send your wish again.": "Es sind gerade sehr viele Wünsche auf einmal angekommen. Bitte warte eine Minute und schick deinen Wunsch dann noch einmal ab.|Es sind gerade sehr viele Wünsche auf einmal angekommen. Bitte warte :count Minuten und schick deinen Wunsch dann noch einmal ab.",
+    "Back": "Zurück",
+    "Please pick a smaller picture of at most :size MB and send your wish again. The text has to be typed again, sorry.": "Bitte nimm ein kleineres Bild mit höchstens :size MB und schick deinen Wunsch noch einmal ab. Den Text musst du leider neu eintippen.",
+    "The picture is too large.": "Das Bild ist zu gross.",
+    "Too heavy for the sleigh": "Zu schwer für den Schlitten",
     "Your text is still here, only the picture has to be attached again.": "Dein Text ist noch da, nur das Bild musst du noch einmal anheften."
 }
