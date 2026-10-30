@@ -14,6 +14,8 @@ class AdminStoreWishRequest extends StoreWishRequest
      */
     protected function prepareForValidation(): void
     {
+        parent::prepareForValidation();
+
         if (!$this->route('wish')) {
             $this->errorBag = 'addWish';
         }

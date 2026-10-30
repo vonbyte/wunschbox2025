@@ -135,6 +135,8 @@
 
     <!-- Example Links (conditional) -->
     @if($showLinks)
+        {{-- Old input is the text as typed; links of a stored wish are a list --}}
+        @php($links = old('example_links', $wish?->example_links))
         <div>
             <label for="example_links" class="{{ $label }}">
                 Links {!! $optional !!}
@@ -144,9 +146,10 @@
                 name="example_links"
                 rows="2"
                 class="{{ $field }} resize-none"
-                placeholder="https://…">{{ old('example_links', $wish?->example_links ? implode("\n", $wish->example_links) : '') }}</textarea>
+                placeholder="https://…">{{ is_array($links) ? implode("\n", $links) : $links }}</textarea>
             <p class="mt-1 text-sm text-ink-muted">Ein Link pro Zeile oder kommagetrennt</p>
-            @error('example_links', $errorBag)
+            {{-- Errors of single links come as example_links.0, example_links.1, … --}}
+            @error('example_links*', $errorBag)
             <p class="field-error">{{ $message }}</p>
             @enderror
         </div>

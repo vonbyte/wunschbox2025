@@ -17,6 +17,24 @@ class StoreWishRequest extends FormRequest
     }
 
     /**
+     * The form sends the links as text, one per line or comma separated. Split them here,
+     * so every single link can be validated.
+     */
+    protected function prepareForValidation(): void
+    {
+        $links = $this->input('example_links');
+
+        if (is_string($links)) {
+            $this->merge([
+                'example_links' => array_values(array_filter(
+                    array_map('trim', preg_split('/[\r\n,]+/', $links)),
+                    fn ($link) => $link !== ''
+                )),
+            ]);
+        }
+    }
+
+    /**
      * Get the validation rules that apply to the request.
      *
      * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
@@ -28,7 +46,23 @@ class StoreWishRequest extends FormRequest
             'receiver' => ['required', Rule::in(Wish::RECEIVERS)],
             'description' => 'nullable|string',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:10000',
-            'example_links' => 'nullable',
+            'example_links' => ['nullable', 'array', 'max:10'],
+            // Only web links: anything else, like javascript: or data:, would end up in an href
+            'example_links.*' => ['string', 'max:2048', 'url:http,https'],
+        ];
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    public function messages(): array
+    {
+        return [
+            'example_links.array' => 'Bitte die Links als Text eingeben, einen pro Zeile.',
+            'example_links.max' => 'Höchstens :max Links pro Wunsch.',
+            'example_links.*.string' => 'Bitte die Links als Text eingeben, einen pro Zeile.',
+            'example_links.*.max' => 'Ein Link darf höchstens :max Zeichen lang sein.',
+            'example_links.*.url' => 'Links müssen mit http:// oder https:// beginnen: :input',
         ];
     }
 }

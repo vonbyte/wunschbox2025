@@ -11,7 +11,7 @@ class WishService
     public function __construct(private readonly ImageService $imageService) {}
 
     /**
-     * Process validated wish data (handle image upload and link parsing)
+     * Process validated wish data (handle image upload, the request already split the links)
      */
     public function processWishData(Request $request, ?Wish $existingWish = null): array
     {
@@ -29,18 +29,8 @@ class WishService
             $validatedData['image_thumbnail'] = $imagePaths['thumbnail'];
         }
 
-        // Parse example links
-        if (!empty($validatedData['example_links'])) {
-            $links = preg_split('/[\r\n,]+/', $validatedData['example_links']);
-            $validatedData['example_links'] = array_values(
-                array_filter(
-                    array_map('trim', $links),
-                    fn($link) => !empty($link)
-                )
-            );
-        } else {
-            $validatedData['example_links'] = null;
-        }
+        // No links are stored as null, not as an empty list
+        $validatedData['example_links'] = ($validatedData['example_links'] ?? null) ?: null;
 
         return $validatedData;
     }
