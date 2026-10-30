@@ -18,7 +18,7 @@ class WishlistController
     public function show(Wish $wish) {
 
         if (!$wish->isOnWishNote() && !auth()->user()?->isAdmin()) {
-            abort(404, 'Dieser Wunsch ist nicht öffentlich.');
+            abort(404, __('This wish is not public.'));
         }
 
         return view('wishlist.show', compact('wish'));

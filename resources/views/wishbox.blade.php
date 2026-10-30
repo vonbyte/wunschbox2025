@@ -6,10 +6,10 @@
                 <svg class="size-4" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
                     <path d="M12 2.5l2.9 6 6.6.9-4.8 4.6 1.2 6.5L12 17.4l-5.9 3.1 1.2-6.5L2.5 9.4l6.6-.9z"/>
                 </svg>
-                <x-christmas-countdown lead="Nur noch" />
+                <x-christmas-countdown only />
             </p>
             <h1 class="-rotate-2 font-hand text-6xl font-bold leading-none text-paper lg:col-start-1 lg:row-span-2 lg:row-start-1 lg:text-7xl">Wunschbox</h1>
-            <p class="mt-2 text-pine-muted lg:col-start-2 lg:row-start-2 lg:mt-0 lg:text-right">Santa hat die Rentiere schon vorgewarnt.</p>
+            <p class="mt-2 text-pine-muted lg:col-start-2 lg:row-start-2 lg:mt-0 lg:text-right">{{ __('Santa has already warned the reindeer.') }}</p>
         </div>
     </x-slot:header>
 
@@ -28,12 +28,12 @@
 
     <x-wish-form
         :action="route('wishbox.store')"
-        submit-text="Ab in die Box!"
+        :submit-text="__('Into the box!')"
     />
 
     <p class="mt-10 text-center">
         <a href="{{ route('wishlist') }}" class="font-bold text-pine underline underline-offset-4 hover:text-pine-dark">
-            {{ \App\Models\Wish::owner() }}s Wunschzettel ansehen
+            {{ __('See :owner\'s wish note', ['owner' => \App\Models\Wish::owner()]) }}
         </a>
     </p>
 </x-public-layout>

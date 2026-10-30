@@ -1,4 +1,5 @@
-@props(['lead' => 'noch'])
+{{-- "only" puts weight on it, like on the wishbox: "Nur noch 3 Tage …" instead of "noch 3 Tage …" --}}
+@props(['only' => false])
 
 @php
     $today = now(config('wishbox.timezone'))->startOfDay();
@@ -9,4 +10,8 @@
     $days = (int) $today->diffInDays($christmas);
 @endphp
 
-{{ $days === 0 ? 'Heute ist Heiligabend' : "{$lead} {$days} ".($days === 1 ? 'Tag' : 'Tage').' bis Weihnachten' }}
+{{ match (true) {
+    $days === 0 => __('Today is Christmas Eve'),
+    $only => trans_choice('Only :count day until Christmas|Only :count days until Christmas', $days),
+    default => trans_choice(':count day until Christmas|:count days until Christmas', $days),
+} }}
