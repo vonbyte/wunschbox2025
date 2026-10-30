@@ -13,7 +13,11 @@ test('admins can set every status', function (string $status) {
         ->assertSessionHasNoErrors();
 
     expect($wish->fresh()->status)->toBe($status);
-})->with(array_keys(Wish::getStatuses()));
+})->with([Wish::STATUS_IDEA, Wish::STATUS_OPEN, Wish::STATUS_ORDERED, Wish::STATUS_DELIVERED, Wish::STATUS_PACKED, Wish::STATUS_UNPACKED]);
+
+test('the status list offers every status', function () {
+    expect(array_keys(Wish::getStatuses()))->toBe([Wish::STATUS_IDEA, Wish::STATUS_OPEN, Wish::STATUS_ORDERED, Wish::STATUS_DELIVERED, Wish::STATUS_PACKED, Wish::STATUS_UNPACKED]);
+});
 
 test('an unknown status is not saved', function (string $status) {
     $wish = Wish::factory()->create(['status' => Wish::STATUS_ORDERED]);

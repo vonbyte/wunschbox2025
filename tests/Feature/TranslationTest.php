@@ -46,3 +46,26 @@ test('the success message after sending a wish follows the locale', function () 
     $this->post(route('wishbox.store'), ['title' => 'Schlitten', 'receiver' => 'Sonia'])
         ->assertSessionHas('success', 'Wish sent');
 });
+
+test('the admin area follows the locale', function () {
+    $admin = App\Models\User::factory()->admin()->create(['name' => 'Tanja']);
+    $wish = Wish::factory()->create(['title' => 'Schlitten', 'receiver' => 'Sonia', 'status' => Wish::STATUS_PACKED]);
+
+    $this->actingAs($admin)->get(route('admin.index'))
+        ->assertSee(['Hallo Tanja', 'Gäste-Wünsche', 'Eingepackt', 'Werkstatt', 'Schlitten löschen', 'Wirklich löschen?'], false);
+
+    app()->setLocale('en');
+
+    $this->actingAs($admin)->get(route('admin.index'))
+        ->assertSee(['Hello Tanja', 'Guest wishes', 'Packed', 'Workshop', 'Delete Schlitten', 'Really delete?', 'No wishes on your wish note yet'])
+        ->assertDontSee(['Gäste-Wünsche', 'Eingepackt', 'Abmelden', 'Wirklich']);
+    $this->actingAs($admin)->get(route('admin.wishes.edit', $wish))
+        ->assertSee(['Edit wish', 'Save', 'Cancel'])
+        ->assertDontSee(['Speichern', 'Abbrechen']);
+    $this->actingAs($admin)->get(route('profile.edit'))
+        ->assertSee(['Name and email', 'Change password', 'Current password'])
+        ->assertDontSee(['Passwort ändern']);
+    $this->actingAs($admin)->from(route('admin.index'))
+        ->patch(route('admin.wishes.update-status', $wish), ['status' => Wish::STATUS_DELIVERED])
+        ->assertSessionHas('success', 'Status updated!');
+});

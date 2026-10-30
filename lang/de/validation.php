@@ -31,6 +31,9 @@ return [
             'array' => 'Bitte die Links als Text eingeben, einen pro Zeile.',
             'max' => 'Höchstens :max Links pro Wunsch.',
         ],
+        // Quick edits on the dashboard, AdminController
+        'sortnr' => 'Die Sortierung muss eine ganze Zahl ab 0 sein.',
+        'package_nr' => 'Die Päckchen-Nummer muss eine ganze Zahl ab 0 sein.',
         'example_links.*' => [
             'string' => 'Bitte die Links als Text eingeben, einen pro Zeile.',
             'max' => 'Ein Link darf höchstens :max Zeichen lang sein.',

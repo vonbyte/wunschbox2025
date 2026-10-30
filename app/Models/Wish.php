@@ -118,12 +118,12 @@ class Wish extends Model
     public static function getStatuses(): array
     {
         return [
-            self::STATUS_IDEA => 'Idee',
-            self::STATUS_OPEN => 'Offen',
-            self::STATUS_ORDERED => 'Bestellt',
-            self::STATUS_DELIVERED => 'Geliefert',
-            self::STATUS_PACKED => 'Eingepackt',
-            self::STATUS_UNPACKED => 'Ausgepackt',
+            self::STATUS_IDEA => __('Idea'),
+            self::STATUS_OPEN => __('Open'),
+            self::STATUS_ORDERED => __('Ordered'),
+            self::STATUS_DELIVERED => __('Delivered'),
+            self::STATUS_PACKED => __('Packed'),
+            self::STATUS_UNPACKED => __('Unpacked'),
         ];
     }
 

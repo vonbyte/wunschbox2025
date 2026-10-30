@@ -67,7 +67,7 @@ class AdminController extends Controller
 
         Wish::create($wishData);
 
-        return back()->with('success', 'Wunsch hinzugefügt!');
+        return back()->with('success', __('Wish added!'));
     }
 
     public function edit(Wish $wish)
@@ -83,7 +83,7 @@ class AdminController extends Controller
 
         return redirect()
             ->route('admin.index')
-            ->with('success', 'Wunsch erfolgreich geändert!');
+            ->with('success', __('Wish saved!'));
     }
 
     public function updateStatus(Request $request, Wish $wish)
@@ -94,7 +94,7 @@ class AdminController extends Controller
 
         $wish->update(['status' => $validated['status']]);
 
-        return back()->with('success', 'Status aktualisiert!');
+        return back()->with('success', __('Status updated!'));
     }
 
     public function updateSortNr(Request $request, Wish $wish)
@@ -102,24 +102,24 @@ class AdminController extends Controller
         $validated = $request->validate([
             'sortnr' => 'required|integer|min:0',
         ], [
-            'sortnr' => 'Die Sortierung muss eine ganze Zahl ab 0 sein.',
+            'sortnr' => __('validation.wishes.sortnr'),
         ]);
 
         $wish->update(['sortnr' => $validated['sortnr']]);
 
-        return back()->with('success', 'Sortierung aktualisiert!');
+        return back()->with('success', __('Sort number updated!'));
     }
 
     public function togglePublic(Wish $wish)
     {
         if (!$wish->canTogglePublic()) {
             return back()->withErrors([
-                'is_public' => 'Auf den Wunschzettel kommen nur Wünsche von '.Wish::owner().'.',
+                'is_public' => __('Only wishes of :owner go on the wish note.', ['owner' => Wish::owner()]),
             ]);
         }
 
         $wish->update(['is_public' => !$wish->is_public]);
-        return back()->with('success', 'Status geändert!');
+        return back()->with('success', __('Visibility changed!'));
     }
 
     public function destroy(Wish $wish)
@@ -137,12 +137,12 @@ class AdminController extends Controller
         $validated = $request->validate([
             'package_nr' => 'required|integer|min:0',
         ], [
-            'package_nr' => 'Die Päckchen-Nummer muss eine ganze Zahl ab 0 sein.',
+            'package_nr' => __('validation.wishes.package_nr'),
         ]);
 
         $wish->update(['package_nr' => $validated['package_nr']]);
 
-        return back()->with('success', 'Päckchen-Nummer aktualisiert!');
+        return back()->with('success', __('Package number updated!'));
     }
 
 }
