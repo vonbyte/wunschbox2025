@@ -65,3 +65,30 @@ test('the file picker offers only the accepted image types', function () {
         ->assertOk()
         ->assertSee('accept="image/jpeg,image/png,image/gif"', false);
 });
+
+test('the form shows up again after fields were sent as lists', function (array $input) {
+    $this->from(route('wishbox'))
+        ->followingRedirects()
+        ->post(route('wishbox.store'), [...['title' => 'Schlitten', 'receiver' => 'Sonia'], ...$input])
+        ->assertOk()
+        ->assertSee('Ab in die Box!');
+})->with([
+    'title' => [['title' => ['kein', 'Text']]],
+    'description' => [['description' => ['kein', 'Text']]],
+    'nested links' => [['example_links' => ['https://example.com/a', ['verschachtelt']]]],
+]);
+
+test('the admin edit form shows up again after fields were sent as lists', function () {
+    $wish = Wish::factory()->onWishNote()->create();
+
+    $this->actingAs(User::factory()->admin()->create())
+        ->from(route('admin.wishes.edit', $wish))
+        ->followingRedirects()
+        ->patch(route('admin.wishes.update', $wish), [
+            'title' => ['kein', 'Text'],
+            'description' => ['kein', 'Text'],
+            'example_links' => ['https://example.com/a', ['verschachtelt']],
+        ])
+        ->assertOk()
+        ->assertSee('https://example.com/a</textarea>', false);
+});

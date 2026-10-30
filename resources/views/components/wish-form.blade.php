@@ -16,6 +16,8 @@
     $field = $isAdmin ? 'field-box' : 'field-line';
     $label = $isAdmin ? 'block text-sm font-bold text-ink mb-1' : 'label-caps mb-1';
     $optional = '<span class="font-normal normal-case tracking-normal text-ink-muted">(optional)</span>';
+    // Old input is what was sent, so a crafted request can bring lists where text belongs
+    $oldText = fn (string $key, ?string $default) => is_array($value = old($key, $default)) ? '' : $value;
 @endphp
 
 <form method="POST" action="{{ $action }}" enctype="multipart/form-data" {{ $attributes->merge(['class' => 'space-y-6']) }}>
@@ -70,7 +72,7 @@
             type="text"
             id="title"
             name="title"
-            value="{{ old('title', $wish?->title) }}"
+            value="{{ $oldText('title', $wish?->title) }}"
             required
             class="{{ $field }}"
             placeholder="{{ $isAdmin ? 'Titel eingeben …' : 'eine Kuscheldecke, ein Buch, Kopfhörer …' }}">
@@ -90,7 +92,7 @@
             rows="3"
             maxlength="5000"
             class="{{ $field }} resize-none"
-            placeholder="{{ $isAdmin ? 'Beschreibung eingeben …' : 'Farbe, Grösse, wo es das gibt …' }}">{{ old('description', $wish?->description) }}</textarea>
+            placeholder="{{ $isAdmin ? 'Beschreibung eingeben …' : 'Farbe, Grösse, wo es das gibt …' }}">{{ $oldText('description', $wish?->description) }}</textarea>
         @error('description', $errorBag)
         <p class="field-error">{{ $message }}</p>
         @enderror
@@ -148,7 +150,7 @@
                 name="example_links"
                 rows="2"
                 class="{{ $field }} resize-none"
-                placeholder="https://…">{{ is_array($links) ? implode("\n", $links) : $links }}</textarea>
+                placeholder="https://…">{{ is_array($links) ? implode("\n", array_filter($links, 'is_string')) : $links }}</textarea>
             <p class="mt-1 text-sm text-ink-muted">Ein Link pro Zeile oder kommagetrennt</p>
             {{-- Errors of single links come as example_links.0, example_links.1, … --}}
             @error('example_links*', $errorBag)
