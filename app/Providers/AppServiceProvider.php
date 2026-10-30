@@ -22,10 +22,11 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        // Guests may send a few wishes in a row, but no script may flood the box with uploads
+        // No script may flood the box with uploads. Counted per IP, so guests on the same network
+        // (a family Wi-Fi at the party) share the limit, hence the room for several of them
         RateLimiter::for('wishbox', fn (Request $request) => [
-            Limit::perMinute(5)->by('minute:'.$request->ip()),
-            Limit::perHour(30)->by('hour:'.$request->ip()),
+            Limit::perMinute(10)->by('minute:'.$request->ip()),
+            Limit::perHour(60)->by('hour:'.$request->ip()),
         ]);
     }
 }

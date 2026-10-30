@@ -8,8 +8,8 @@ function sendWish(string $ip = '203.0.113.1')
         ->post(route('wishbox.store'), ['title' => 'Schlitten', 'receiver' => 'Sonia']);
 }
 
-test('a guest can send five wishes a minute, the sixth one gets a German 429 page', function () {
-    foreach (range(1, 5) as $i) {
+test('guests on one network can send ten wishes a minute, the eleventh one gets a German 429 page', function () {
+    foreach (range(1, 10) as $i) {
         sendWish()->assertRedirect(route('wishbox'));
     }
 
@@ -18,20 +18,20 @@ test('a guest can send five wishes a minute, the sixth one gets a German 429 pag
         ->assertSee('Kurz durchatmen')
         ->assertSee('Bitte warte ein paar Minuten');
 
-    expect(Wish::count())->toBe(5);
+    expect(Wish::count())->toBe(10);
 });
 
-test('the limit counts per guest', function () {
-    foreach (range(1, 5) as $i) {
+test('the limit counts per network', function () {
+    foreach (range(1, 10) as $i) {
         sendWish('203.0.113.1');
     }
 
     sendWish('203.0.113.2')->assertRedirect(route('wishbox'));
 });
 
-test('a guest can send thirty wishes an hour', function () {
+test('guests on one network can send sixty wishes an hour', function () {
     foreach (range(1, 6) as $round) {
-        foreach (range(1, 5) as $i) {
+        foreach (range(1, 10) as $i) {
             sendWish()->assertRedirect(route('wishbox'));
         }
         $this->travel(61)->seconds();
@@ -39,5 +39,5 @@ test('a guest can send thirty wishes an hour', function () {
 
     sendWish()->assertTooManyRequests();
 
-    expect(Wish::count())->toBe(30);
+    expect(Wish::count())->toBe(60);
 });
