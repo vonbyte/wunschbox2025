@@ -117,6 +117,25 @@ test('wish detail shows the receiver only to admins', function () {
         ->assertSee('von Tanja');
 });
 
+test('the back link of the detail page leads admins to the admin area and everyone else to the wish note', function () {
+    $wish = Wish::factory()->onWishNote()->create();
+
+    $this->get(route('wish.show', $wish))
+        ->assertSee('href="'.route('wishlist').'"', false)
+        ->assertSee('Zurück zum Wunschzettel');
+
+    // E.g. an old remember-me cookie of a user without admin role
+    $this->actingAs(User::factory()->create(['is_admin' => false]))
+        ->get(route('wish.show', $wish))
+        ->assertSee('href="'.route('wishlist').'"', false)
+        ->assertDontSee('Zurück zum Admin');
+
+    $this->actingAs(User::factory()->admin()->create())
+        ->get(route('wish.show', $wish))
+        ->assertSee('href="'.route('admin.index').'"', false)
+        ->assertSee('Zurück zum Admin');
+});
+
 test('the add form on the dashboard has no receiver choice', function () {
     $wish = Wish::factory()->create(['is_public' => false]);
 

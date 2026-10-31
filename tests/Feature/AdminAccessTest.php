@@ -52,7 +52,7 @@ test('users without admin role can still log out', function () {
 });
 
 test('admins can open the admin area', function () {
-    $admin = User::factory()->create(['is_admin' => true]);
+    $admin = User::factory()->admin()->create();
 
     $this->actingAs($admin)->get(route('admin.index'))->assertOk();
 });

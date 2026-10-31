@@ -1,8 +1,10 @@
 <?php
 
+use App\Http\Requests\StoreWishRequest;
 use App\Models\User;
 use App\Models\Wish;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Validator;
 
 test('a description may have up to 5000 characters', function () {
     $this->post(route('wishbox.store'), [
@@ -43,6 +45,19 @@ test('the wish form shows German messages', function (array $input, string $fiel
     'large image' => [fn () => ['image' => UploadedFile::fake()->image('wunsch.jpg')->size(10001)], 'image', 'Das Bild darf höchstens 10 MB gross sein.'],
     'failed upload' => [fn () => ['image' => new UploadedFile(UploadedFile::fake()->image('wunsch.jpg')->getPathname(), 'wunsch.jpg', 'image/jpeg', UPLOAD_ERR_INI_SIZE, true)], 'image', 'Das Bild konnte nicht hochgeladen werden. Vielleicht ist es zu gross?'],
 ]);
+
+test('the messages of the wish form do not apply to other forms', function () {
+    $errors = Validator::make(['title' => '', 'image' => 'kein Bild'], ['title' => 'required', 'image' => 'image'])->errors();
+
+    expect($errors->first('title'))->not->toBe('Bitte einen Wunsch eintragen.')
+        ->and($errors->first('image'))->not->toBe('Das Bild muss ein JPG, PNG oder GIF sein.');
+});
+
+test('the image size message follows the limit of the rule', function () {
+    expect((new StoreWishRequest)->messages())
+        ->toHaveKey('image.max', 'Das Bild darf höchstens '.(StoreWishRequest::IMAGE_MAX_KILOBYTES / 1000).' MB gross sein.')
+        ->toHaveKey('example_links.*.url', 'Links müssen mit http:// oder https:// beginnen: :input');
+});
 
 test('no message on the wish form is English or has a placeholder left', function () {
     $this->post(route('wishbox.store'), [

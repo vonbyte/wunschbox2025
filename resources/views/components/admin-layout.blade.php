@@ -1,7 +1,7 @@
 @props(['title', 'heading' => null])
 
 <!DOCTYPE html>
-<html lang="de">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -24,13 +24,13 @@
         </div>
         <nav class="flex flex-wrap items-center gap-4 text-sm font-bold text-pine-muted">
             {{ $actions ?? '' }}
-            <a href="{{ route('admin.index') }}" class="hover:text-white @if(request()->routeIs('admin.index')) text-white @endif">Werkstatt</a>
-            <a href="{{ route('wishlist') }}" class="hover:text-white">Wunschzettel</a>
-            <a href="{{ route('profile.edit') }}" class="hover:text-white @if(request()->routeIs('profile.edit')) text-white @endif">Profil</a>
+            <a href="{{ route('admin.index') }}" class="hover:text-white @if(request()->routeIs('admin.index')) text-white @endif">{{ __('Workshop') }}</a>
+            <a href="{{ route('wishlist') }}" class="hover:text-white">{{ __('Wish note') }}</a>
+            <a href="{{ route('profile.edit') }}" class="hover:text-white @if(request()->routeIs('profile.edit')) text-white @endif">{{ __('Profile') }}</a>
             <form method="POST" action="{{ route('logout') }}">
                 @csrf
                 <button type="submit" class="rounded-lg border border-pine-muted/40 px-3 py-1 text-white transition hover:bg-pine-dark">
-                    Abmelden
+                    {{ __('Log out') }}
                 </button>
             </form>
         </nav>

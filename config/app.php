@@ -78,8 +78,7 @@ return [
     |
     */
 
-    // The UI is German only. Not read from APP_LOCALE, so an old .env with "en" cannot switch it back
-    'locale' => 'de',
+    'locale' => env('APP_LOCALE', 'de'),
 
     'fallback_locale' => env('APP_FALLBACK_LOCALE', 'en'),
 

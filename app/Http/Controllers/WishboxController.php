@@ -26,7 +26,7 @@ class WishboxController extends Controller
 
         return redirect()
             ->route('wishbox')
-            ->with('success', 'Wunsch erfolgreich übermittelt');
+            ->with('success', __('Wish sent'));
     }
 
 }

@@ -1,13 +1,13 @@
-<x-admin-layout title="Profil" class="space-y-8">
+<x-admin-layout :title="__('Profile')" class="space-y-8">
     <!-- Profile Information -->
     <div class="card mx-auto max-w-2xl p-6 md:p-8">
         <h2 class="mb-6 font-hand text-4xl font-bold leading-none text-berry">
-            Name und E-Mail
+            {{ __('Name and email') }}
         </h2>
 
         @if(session('status') === 'profile-updated')
             <div class="flash" role="status">
-                Profil gespeichert!
+                {{ __('Profile saved!') }}
             </div>
         @endif
 
@@ -15,7 +15,7 @@
             @csrf @method('PATCH')
 
             <div>
-                <label for="name" class="mb-1 block text-sm font-bold text-ink">Name *</label>
+                <label for="name" class="mb-1 block text-sm font-bold text-ink">{{ __('Name') }} *</label>
                 <input type="text" id="name" name="name" value="{{ old('name', $user->name) }}" required autocomplete="name"
                        class="field-box">
                 @error('name')
@@ -24,7 +24,7 @@
             </div>
 
             <div>
-                <label for="email" class="mb-1 block text-sm font-bold text-ink">E-Mail *</label>
+                <label for="email" class="mb-1 block text-sm font-bold text-ink">{{ __('Email') }} *</label>
                 <input type="email" id="email" name="email" value="{{ old('email', $user->email) }}" required autocomplete="username"
                        class="field-box">
                 @error('email')
@@ -34,7 +34,7 @@
 
             <button type="submit"
                     class="btn btn-primary">
-                Speichern
+                {{ __('Save') }}
             </button>
         </form>
     </div>
@@ -42,12 +42,12 @@
     <!-- Password -->
     <div class="card mx-auto max-w-2xl p-6 md:p-8">
         <h2 class="mb-6 font-hand text-4xl font-bold leading-none text-berry">
-            Passwort ändern
+            {{ __('Change password') }}
         </h2>
 
         @if(session('status') === 'password-updated')
             <div class="flash" role="status">
-                Passwort geändert!
+                {{ __('Password changed!') }}
             </div>
         @endif
 
@@ -55,7 +55,7 @@
             @csrf @method('PUT')
 
             <div>
-                <label for="current_password" class="mb-1 block text-sm font-bold text-ink">Aktuelles Passwort *</label>
+                <label for="current_password" class="mb-1 block text-sm font-bold text-ink">{{ __('Current password') }} *</label>
                 <input type="password" id="current_password" name="current_password" required autocomplete="current-password"
                        class="field-box">
                 @error('current_password', 'updatePassword')
@@ -64,7 +64,7 @@
             </div>
 
             <div>
-                <label for="password" class="mb-1 block text-sm font-bold text-ink">Neues Passwort *</label>
+                <label for="password" class="mb-1 block text-sm font-bold text-ink">{{ __('New password') }} *</label>
                 <input type="password" id="password" name="password" required autocomplete="new-password"
                        class="field-box">
                 @error('password', 'updatePassword')
@@ -73,14 +73,14 @@
             </div>
 
             <div>
-                <label for="password_confirmation" class="mb-1 block text-sm font-bold text-ink">Neues Passwort bestätigen *</label>
+                <label for="password_confirmation" class="mb-1 block text-sm font-bold text-ink">{{ __('Confirm new password') }} *</label>
                 <input type="password" id="password_confirmation" name="password_confirmation" required autocomplete="new-password"
                        class="field-box">
             </div>
 
             <button type="submit"
                     class="btn btn-primary">
-                Passwort ändern
+                {{ __('Change password') }}
             </button>
         </form>
     </div>

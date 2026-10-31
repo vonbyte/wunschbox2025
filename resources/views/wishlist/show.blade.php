@@ -1,11 +1,13 @@
-<x-public-layout :title="$wish->title.' · Wunschzettel'">
+<x-public-layout :title="$wish->title.' · '.__('Wish note')">
     <x-slot:header>
-        <a href="{{ auth()->check() ? route('admin.index') : route('wishlist') }}"
+        {{-- Users without admin role (an old remember-me cookie) would get a 403 in the admin area --}}
+        @php($isAdmin = (bool) auth()->user()?->isAdmin())
+        <a href="{{ $isAdmin ? route('admin.index') : route('wishlist') }}"
            class="mb-3 inline-flex items-center gap-1.5 text-sm font-bold text-pine-muted hover:text-white">
             <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7 7-7M3 12h18"/>
             </svg>
-            {{ auth()->check() ? 'Zurück zum Admin' : 'Zurück zum Wunschzettel' }}
+            {{ $isAdmin ? __('Back to the admin area') : __('Back to the wish note') }}
         </a>
         <h1 class="-rotate-1 font-hand text-5xl font-bold leading-none text-paper lg:text-6xl">{{ $wish->title }}</h1>
     </x-slot:header>
@@ -27,12 +29,11 @@
         @endif
 
         @if($wish->example_links && count($wish->example_links) > 0)
-            <h2 class="label-caps mt-8 mb-3">Beispiele</h2>
+            <h2 class="label-caps mt-8 mb-3">{{ __('Examples') }}</h2>
             <ul class="space-y-2">
                 @foreach($wish->example_links as $link)
                     <li>
-                        {{-- Links stored before they were validated may be anything, so only web links get an href --}}
-                        @if(in_array(strtolower((string) parse_url($link, PHP_URL_SCHEME)), ['http', 'https'], true))
+                        @if(\App\Models\Wish::isWebLink($link))
                             <a href="{{ $link }}" target="_blank" rel="noopener noreferrer"
                                class="card flex items-center gap-3 px-4 py-3 transition hover:border-pine focus-visible:outline-2 focus-visible:outline-pine">
                                 <svg class="size-5 shrink-0 text-pine" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
@@ -59,25 +60,25 @@
                         <svg class="size-3.5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
                             <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"/>
                         </svg>
-                        Nur Admin · von {{ $wish->receiver }} · {{ $wish->isOnWishNote() ? 'Auf dem Wunschzettel' : 'Nicht öffentlich' }}
+                        {{ __('Admins only') }} · {{ __('from :receiver', ['receiver' => $wish->receiver]) }} · {{ $wish->isOnWishNote() ? __('On the wish note') : __('Not public') }}
                     </span>
-                    <a href="{{ route('admin.wishes.edit', $wish) }}" class="btn btn-ghost">Bearbeiten</a>
+                    <a href="{{ route('admin.wishes.edit', $wish) }}" class="btn btn-ghost">{{ __('Edit') }}</a>
                     @if($wish->canTogglePublic())
                         <form method="POST" action="{{ route('admin.wishes.toggle', $wish) }}">
                             @csrf @method('PATCH')
                             <button type="submit" class="btn btn-ghost">
-                                {{ $wish->is_public ? 'Privat machen' : 'Auf den Wunschzettel' }}
+                                {{ $wish->is_public ? __('Make private') : __('Put on the wish note') }}
                             </button>
                         </form>
                     @endif
-                    <form method="POST" action="{{ route('admin.wishes.destroy', $wish) }}" onsubmit="return confirm('Wirklich löschen?')">
+                    <form method="POST" action="{{ route('admin.wishes.destroy', $wish) }}" onsubmit="return confirm(@js(__('Really delete?')))">
                         @csrf @method('DELETE')
-                        <button type="submit" class="btn btn-danger">Löschen</button>
+                        <button type="submit" class="btn btn-danger">{{ __('Delete') }}</button>
                     </form>
                 </div>
             @endif
         @endauth
 
-        <p class="mt-8 text-sm text-ink-muted">Aufgeschrieben am {{ $wish->created_at->format('d.m.Y') }}</p>
+        <p class="mt-8 text-sm text-ink-muted">{{ __('Written down on :date', ['date' => $wish->created_at->format(__('m/d/Y'))]) }}</p>
     </article>
 </x-public-layout>

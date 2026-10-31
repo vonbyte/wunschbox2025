@@ -132,3 +132,21 @@ test('stored links that are no web links are shown without a link', function () 
         ->assertDontSee('href="javascript:', false)
         ->assertDontSee('href=" javascript:', false);
 });
+
+test('the form and the detail page agree on what a web link is', function (string $link, bool $isWebLink) {
+    expect(Wish::isWebLink($link))->toBe($isWebLink);
+
+    $response = $this->post(route('wishbox.store'), ['title' => 'Schlitten', 'receiver' => 'Sonia', 'example_links' => $link]);
+
+    $isWebLink
+        ? $response->assertSessionDoesntHaveErrors('example_links.0')
+        : $response->assertSessionHasErrors('example_links.0');
+})->with([
+    'https' => ['https://example.com/decke', true],
+    'http' => ['http://example.com/decke', true],
+    'upper case scheme' => ['HTTPS://example.com/decke', true],
+    'javascript' => ['javascript:alert(1)', false],
+    'data' => ['data:text/html,<b>hi</b>', false],
+    'ftp' => ['ftp://example.com/decke', false],
+    'no scheme' => ['example.com/decke', false],
+]);

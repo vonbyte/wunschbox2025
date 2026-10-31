@@ -1,17 +1,17 @@
 @php($owner = \App\Models\Wish::owner())
 
-<x-public-layout :title="$owner.'s Wunschzettel'">
+<x-public-layout :title="__(':owner\'s wish note', ['owner' => $owner])">
     <x-slot:header>
-        <h1 class="-rotate-2 font-hand text-6xl font-bold leading-none text-paper lg:text-7xl">Mein Wunschzettel</h1>
+        <h1 class="-rotate-2 font-hand text-6xl font-bold leading-none text-paper lg:text-7xl">{{ __('My wish note') }}</h1>
     </x-slot:header>
 
     @if($wishes->isEmpty())
         <div class="py-10 text-center">
-            <p class="font-hand text-4xl text-pine">Der Wunschzettel ist noch leer.</p>
-            <p class="mt-2 text-ink-muted">Schau später wieder vorbei.</p>
+            <p class="font-hand text-4xl text-pine">{{ __('The wish note is still empty.') }}</p>
+            <p class="mt-2 text-ink-muted">{{ __('Come back later.') }}</p>
         </div>
     @else
-        <p class="mb-4 font-hand text-3xl text-pine lg:text-4xl">Lieber Santa, ich wünsche mir …</p>
+        <p class="mb-4 font-hand text-3xl text-pine lg:text-4xl">{{ __('Dear Santa, I wish for …') }}</p>
 
         <ol>
             @foreach($wishes as $wish)
@@ -31,7 +31,7 @@
                                             <svg class="size-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
                                                 <path stroke-linecap="round" stroke-linejoin="round" d="M10 14a4 4 0 005.66 0l3-3a4 4 0 00-5.66-5.66l-1 1M14 10a4 4 0 00-5.66 0l-3 3a4 4 0 005.66 5.66l1-1"/>
                                             </svg>
-                                            {{ $linkCount }} {{ $linkCount === 1 ? 'Link' : 'Links' }}
+                                            {{ trans_choice(':count link|:count links', $linkCount) }}
                                         </span>
                                     @endif
                                 </span>
@@ -46,7 +46,7 @@
         </ol>
 
         <p class="mt-6 text-right font-hand text-3xl text-pine">
-            Deine {{ $owner }}
+            {{ __('Yours, :owner', ['owner' => $owner]) }}
             <svg class="inline size-5 -translate-y-0.5 text-berry" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
                 <path d="M12 21s-7.5-4.6-9.5-9.2C1.2 8.6 3.2 5 6.7 5c2 0 3.6 1.1 4.3 2.6h2C13.7 6.1 15.3 5 17.3 5c3.5 0 5.5 3.6 4.2 6.8C19.5 16.4 12 21 12 21z"/>
             </svg>
@@ -55,7 +55,7 @@
 
     <p class="mt-10 text-center">
         <a href="{{ route('wishbox') }}" class="font-bold text-pine underline underline-offset-4 hover:text-pine-dark">
-            Selbst einen Wunsch einwerfen
+            {{ __('Drop in a wish yourself') }}
         </a>
     </p>
 </x-public-layout>

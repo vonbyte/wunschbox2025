@@ -2,7 +2,7 @@
     'action',
     'method' => 'POST',
     'wish' => null,
-    'submitText' => 'Absenden',
+    'submitText' => null,
     'variant' => 'public',
     'showReceiver' => true,
     'showImage' => true,
@@ -15,7 +15,7 @@
     $isAdmin = $variant === 'admin';
     $field = $isAdmin ? 'field-box' : 'field-line';
     $label = $isAdmin ? 'block text-sm font-bold text-ink mb-1' : 'label-caps mb-1';
-    $optional = '<span class="font-normal normal-case tracking-normal text-ink-muted">(optional)</span>';
+    $optional = '<span class="font-normal normal-case tracking-normal text-ink-muted">'.e(__('(optional)')).'</span>';
     // Old input is what was sent, so a crafted request can bring lists where text belongs
     $oldText = fn (string $key, ?string $default) => is_array($value = old($key, $default)) ? '' : $value;
 @endphp
@@ -32,7 +32,7 @@
         {{-- Keep a stored receiver outside the list (e.g. an admin's name) selectable --}}
         @php($receivers = array_values(array_unique(array_filter([...\App\Models\Wish::RECEIVERS, $wish?->receiver]))))
         <fieldset>
-            <legend class="{{ $label }}">{{ $isAdmin ? 'Name' : 'Von' }} *</legend>
+            <legend class="{{ $label }}">{{ $isAdmin ? __('Name') : __('From') }} *</legend>
             <div class="mt-2 flex flex-wrap gap-3">
                 @foreach($receivers as $receiver)
                     @if($isAdmin)
@@ -66,7 +66,7 @@
     <!-- Title Field -->
     <div>
         <label for="title" class="{{ $label }}">
-            {{ $isAdmin ? 'Wunsch' : 'Ich wünsche mir' }} *
+            {{ $isAdmin ? __('Wish') : __('I wish for') }} *
         </label>
         <input
             type="text"
@@ -75,7 +75,7 @@
             value="{{ $oldText('title', $wish?->title) }}"
             required
             class="{{ $field }}"
-            placeholder="{{ $isAdmin ? 'Titel eingeben …' : 'eine Kuscheldecke, ein Buch, Kopfhörer …' }}">
+            placeholder="{{ $isAdmin ? __('Enter a title …') : __('a cosy blanket, a book, headphones …') }}">
         @error('title', $errorBag)
         <p class="field-error">{{ $message }}</p>
         @enderror
@@ -84,7 +84,7 @@
     <!-- Description Field -->
     <div>
         <label for="description" class="{{ $label }}">
-            {{ $isAdmin ? 'Beschreibung' : 'Genauer gesagt' }} {!! $optional !!}
+            {{ $isAdmin ? __('Description') : __('More precisely') }} {!! $optional !!}
         </label>
         <textarea
             id="description"
@@ -92,7 +92,7 @@
             rows="3"
             maxlength="5000"
             class="{{ $field }} resize-none"
-            placeholder="{{ $isAdmin ? 'Beschreibung eingeben …' : 'Farbe, Grösse, wo es das gibt …' }}">{{ $oldText('description', $wish?->description) }}</textarea>
+            placeholder="{{ $isAdmin ? __('Enter a description …') : __('colour, size, where to get it …') }}">{{ $oldText('description', $wish?->description) }}</textarea>
         @error('description', $errorBag)
         <p class="field-error">{{ $message }}</p>
         @enderror
@@ -101,7 +101,7 @@
     <!-- Image Upload (conditional) -->
     @if($showImage)
         <div x-data="{ preview: null, name: null }">
-            <span class="{{ $label }}">Bild {!! $optional !!}</span>
+            <span class="{{ $label }}">{{ __('Picture') }} {!! $optional !!}</span>
             <label for="image" class="mt-2 flex cursor-pointer items-center gap-4 rounded-xl p-1 focus-within:outline-2 focus-within:outline-pine">
                 <span class="polaroid shrink-0">
                     <span class="flex size-20 items-center justify-center overflow-hidden bg-pine-light {{ $isAdmin ? '' : 'lg:size-28' }}">
@@ -119,8 +119,8 @@
                     </span>
                 </span>
                 <span class="leading-tight">
-                    <span class="block font-hand text-2xl text-ink" x-text="name ?? @js($wish?->image ? 'Bild ersetzen?' : 'Foto dazu?')">{{ $wish?->image ? 'Bild ersetzen?' : 'Foto dazu?' }}</span>
-                    <span class="block text-sm text-ink-muted" x-text="name ? 'Tippen zum Ändern' : 'Tippen zum Anheften'">Tippen zum Anheften</span>
+                    <span class="block font-hand text-2xl text-ink" x-text="name ?? @js($wish?->image ? __('Replace the picture?') : __('Add a photo?'))">{{ $wish?->image ? __('Replace the picture?') : __('Add a photo?') }}</span>
+                    <span class="block text-sm text-ink-muted" x-text="name ? @js(__('Tap to change')) : @js(__('Tap to attach'))">{{ __('Tap to attach') }}</span>
                 </span>
                 {{-- Only the types the request accepts; iPhones then send their HEIC photos as JPEG --}}
                 <input
@@ -143,7 +143,7 @@
         @php($links = old('example_links', $wish?->example_links))
         <div>
             <label for="example_links" class="{{ $label }}">
-                Links {!! $optional !!}
+                {{ __('Links') }} {!! $optional !!}
             </label>
             <textarea
                 id="example_links"
@@ -151,7 +151,7 @@
                 rows="2"
                 class="{{ $field }} resize-none"
                 placeholder="https://…">{{ is_array($links) ? implode("\n", array_filter($links, 'is_string')) : $links }}</textarea>
-            <p class="mt-1 text-sm text-ink-muted">Ein Link pro Zeile oder kommagetrennt</p>
+            <p class="mt-1 text-sm text-ink-muted">{{ __('One link per line or separated by commas') }}</p>
             {{-- Errors of single links come as example_links.0, example_links.1, … --}}
             @error('example_links*', $errorBag)
             <p class="field-error">{{ $message }}</p>
@@ -162,9 +162,9 @@
     <!-- Actions -->
     @if($isAdmin)
         <div class="flex flex-wrap gap-3">
-            <button type="submit" class="btn btn-primary">{{ $submitText }}</button>
+            <button type="submit" class="btn btn-primary">{{ $submitText ?? __('Send') }}</button>
             @if($cancelUrl)
-                <a href="{{ $cancelUrl }}" class="btn btn-ghost">Abbrechen</a>
+                <a href="{{ $cancelUrl }}" class="btn btn-ghost">{{ __('Cancel') }}</a>
             @endif
         </div>
     @else
@@ -175,7 +175,7 @@
                         <path stroke-linecap="round" stroke-linejoin="round" d="M4 10h16v10H4zM3 7h18v3H3zM12 7v13M12 7c-2-3-6-3-6-1s4 1 6 1zm0 0c2-3 6-3 6-1s-4 1-6 1z"/>
                     </svg>
                 </span>
-                <span class="font-hand text-3xl font-bold text-seal">{{ $submitText }}</span>
+                <span class="font-hand text-3xl font-bold text-seal">{{ $submitText ?? __('Send') }}</span>
             </button>
         </div>
     @endif
